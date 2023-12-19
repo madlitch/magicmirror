@@ -1,0 +1,9 @@
+{
+  "name": "MedicationScanner",
+  "version": "1.0.0",
+  "description": "MagicMirror module for medication scanning",
+  "main": "MedicationScanner.js",
+  "dependencies": {
+    // Add any dependencies needed for your module here
+  }
+}
