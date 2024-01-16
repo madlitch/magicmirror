@@ -1,0 +1,9 @@
+{
+  "name": "template_module",
+  "version": "1.0.0",
+  "description": "Todo: Insert description here!",
+  "main": "",
+  "author": "Massimo Albanese",
+  "license": "MIT",
+  "devDependencies": {}
+}

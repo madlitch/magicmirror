@@ -1,0 +1,16 @@
+{
+  "name": "MMM-Cursor",
+  "version": "0.1.0",
+  "description": "Cursor show/hide module for MagicMirror²",
+
+  "keywords": [
+    "MagicMirror²",
+    "Magic Mirror",
+    "Magic",
+    "Mirror",
+    "Module",
+    "Cursor",
+    "MMM-Cursor"
+  ],
+  "license": "MIT"
+}

@@ -1,0 +1,30 @@
+.MMM-TouchButton .touchButtonRootWrapper {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  font-size: 0px;
+  z-index: 999;
+}
+
+.MMM-TouchButton .touchButton .button.icon {
+  font-size: 20px;
+  margin: 5px;
+}
+
+.MMM-TouchButton .touchButton .button .iconify-inline {
+  width: 20px;
+  height: 20px;
+  margin: 5px;
+}
+
+.MMM-TouchButton .touchButton .button.imgIcon {
+  width: 20px;
+  margin: 5px;
+}
+
+.MMM-TouchButton .touchButton .button.title {
+  font-size: 16px;
+  text-align: center;
+  margin: 5px;
+  margin-bottom: 10px;
+}
