@@ -1,0 +1,11 @@
+<div class="medication-scanner">
+  <button id="scanButton">Scan Medication</button>
+  <div class="scanned-data">
+    {% if scannedData %}
+      <p>Scanned Data: {{ scannedData }}</p>
+    {% else %}
+      <p>No data scanned yet.</p>
+    {% endif %}
+  </div>
+  <video id="camera" width="640" height="480" autoplay></video>
+</div>
