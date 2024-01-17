@@ -9,36 +9,40 @@
 
 Module.register("gpio", {
 	defaults: {
-		demo: false
+		mock: false
 	},
-
-	requiresVersion: "2.1.0", // Required version of MagicMirror
 
 	start: function() {
-		this.sendSocketNotification(this.name + "SETUP");
+		if (this.config.mock) {
+			this.log("GPIO Loaded in MOCK mode");
+		} else {
+			this.sendSocketNotification(this.name + "SETUP");
+		}
 	},
-
 
 	log: function(data) {
 		this.sendSocketNotification(this.name + "LOG", data);
 	},
 
 	notificationReceived: function(notification, payload, sender) {
-
-		if (notification === "SOLENOID_TOGGLE") {
-			this.sendSocketNotification(this.name + "SOLENOID_WRITE", payload);
+		if (this.config.mock) {
+			if (notification === "GPIO_PIN_TOGGLE" || notification === "GPIO_PIN_WRITE") {
+				this.sendNotification("GPIO_MOCK_NOTIFICATION_RECEIVED", payload);
+				this.log("GPIO_MOCK_NOTIFICATION_RECEIVED");
+				this.log(payload);
+			}
+		} else {
+			if (notification === "GPIO_PIN_TOGGLE") {
+				this.sendSocketNotification(this.name + "PIN_TOGGLE", payload);
+			} else if (notification === "GPIO_PIN_WRITE") {
+				this.sendSocketNotification(this.name + "PIN_WRITE", payload);
+			}
 		}
 	},
 
 	socketNotificationReceived: function(notification, payload) {
-		if (notification === "gpio-NOTIFICATION_TEST") {
-		} else if (notification === "gpio-WRITE_SUCCESS") {
-			this.sendNotification("hello", {
-				"output": true
-			});
-
-			this.log(payload);
-			this.log({state: payload.state});
+		if (notification === this.name + "WRITE_SUCCESS") {
+			this.sendNotification(payload.state ? "GPIO_WRITE_ON_SUCCESS" : "GPIO_WRITE_OFF_SUCCESS", payload.pinID);
 		}
 	}
 });

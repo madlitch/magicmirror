@@ -99,81 +99,80 @@ let config = {
 		{
 			module: "MMM-Cursor",
 			config: {
-				timeout: 1000
+				timeout: 10000
 			}
 		},
 		{
-			module: "pillbox",
-			position: "bottom_bar",
+			module: "gpio",
 			config: {
-				// See below for configurable options
+				mock: true
 			}
 		},
 		{
 			module: "MMM-TouchButton",
-			position: "bottom_left",
+			position: "top_left",
 			config: {
 				buttons: [
 					{
+						name: "Solenoid_0",
+						icon: "fa fa-toggle-off",
+						notification: "GPIO_PIN_TOGGLE",
+						payload: { pin: 0 }
+					},
+					{
+						name: "Solenoid_00",
+						icon: "fa fa-toggle-off",
+						notification: "GPIO_PIN_WRITE",
+						payload: { pin: 0, state: false }
+					},
+					{
+						name: "Solenoid_000",
+						icon: "fa fa-toggle-off",
+						notification: "GPIO_PIN_WRITE",
+						payload: { pin: 0, state: true }
+					},
+					{
 						name: "Solenoid_1",
-						icon: "fa fa-toggle-on",
-						notification: "SOLENOID_TOGGLE",
-						payload: { solenoid: 1 }
+						icon: "fa fa-toggle-off",
+						notification: "GPIO_PIN_TOGGLE",
+						payload: { pin: 1 }
 					},
 					{
 						name: "Solenoid_2",
-						icon: "fa fa-toggle-on",
-						notification: "SOLENOID_TOGGLE",
-						payload: { solenoid: 2 }
+						icon: "fa fa-toggle-off",
+						notification: "GPIO_PIN_TOGGLE",
+						payload: { pin: 2 }
 					},
 					{
 						name: "Solenoid_3",
-						icon: "fa fa-toggle-on",
-						notification: "SOLENOID_TOGGLE",
-						payload: { solenoid: 3 }
+						icon: "fa fa-toggle-off",
+						notification: "GPIO_PIN_TOGGLE",
+						payload: { pin: 3 }
 					},
 					{
 						name: "Solenoid_4",
-						icon: "fa fa-toggle-on",
-						notification: "SOLENOID_TOGGLE",
-						payload: { solenoid: 4 }
+						icon: "fa fa-toggle-off",
+						notification: "GPIO_PIN_TOGGLE",
+						payload: { pin: 4 }
 					},
 					{
 						name: "Solenoid_5",
-						icon: "fa fa-toggle-on",
-						notification: "SOLENOID_TOGGLE",
-						payload: { solenoid: 5 }
+						icon: "fa fa-toggle-off",
+						notification: "GPIO_PIN_TOGGLE",
+						payload: { pin: 5 }
 					},
 					{
 						name: "Solenoid_6",
-						icon: "fa fa-toggle-on",
-						notification: "SOLENOID_TOGGLE",
-						payload: { solenoid: 6 }
+						icon: "fa fa-toggle-off",
+						notification: "GPIO_PIN_TOGGLE",
+						payload: { pin: 6 }
 					},
 					{
 						name: "Solenoid_7",
-						icon: "fa fa-toggle-on",
-						notification: "SOLENOID_TOGGLE",
-						payload: { solenoid: 7 }
-					},
-					{
-						name: "Solenoid_8",
-						icon: "fa fa-toggle-on",
-						notification: "SOLENOID_TOGGLE",
-						payload: { solenoid: 8 }
+						icon: "fa fa-toggle-off",
+						notification: "GPIO_PIN_TOGGLE",
+						payload: { pin: 7 }
 					}
-					// {
-					// 	name: "On",
-					// 	icon: "fa fa-snowflake-o",
-					// 	notification: "MODULE_TOGGLE",
-					// 	payload: {hide: [], show: [], toggle:["Clock"]}
-					// },
-					// {
-					// 	name: "Off",
-					// 	icon: "fa fa-snowflake-o",
-					// 	notification: "MODULE_TOGGLE",
-					// 	payload: {hide: [], show: [], toggle:["Clock"]}
-					// },
 				]
 			}
 		},
