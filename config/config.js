@@ -68,18 +68,30 @@ let config = {
 			module: "compliments",
 			position: "lower_third"
 		},
+		// {
+		// 	module: "weather",
+		// 	position: "top_right",
+		// 	header: "Weather Forecast",
+		// 	config: {
+		// 		weatherProvider: "envcanada",
+		// 		type: "forecast",
+		// 		siteCode: "s0000707",
+		// 		provCode: "ON",
+		// 		location: "Oshawa, ON"
+		// 	}
+		// },
 		{
-			module: "weather",
+			module: "Medication-Scheduler",
 			position: "top_right",
-			header: "Weather Forecast",
-			config: {
-				weatherProvider: "envcanada",
-				type: "forecast",
-				siteCode: "s0000707",
-				provCode: "ON",
-				location: "Oshawa, ON"
-			}
+			header: "Medication Scheduler",
+			
+			
 		},
+
+		{
+			module: "Medication-Alarm",
+			position: "top_center",
+		  },
 		// {
 		// 	module: "newsfeed",
 		// 	position: "bottom_bar",
