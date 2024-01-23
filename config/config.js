@@ -91,7 +91,13 @@ let config = {
 		{
 			module: "Medication-Alarm",
 			position: "top_center",
+			header: "Medication Alarm",
+			config: {
+			 
+			  medicationSchedule: []
+			}
 		  },
+		  
 		// {
 		// 	module: "newsfeed",
 		// 	position: "bottom_bar",
