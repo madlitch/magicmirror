@@ -8,6 +8,8 @@
 const NodeHelper = require("node_helper");
 const schedule = require("node-schedule");
 const sqlite3 = require("sqlite3").verbose();
+const notifier = require('node-notifier');
+
 
 module.exports = NodeHelper.create({
   start: function () {
@@ -27,7 +29,7 @@ module.exports = NodeHelper.create({
   scheduleMedication: function ({ ndc, days, times }) {
     // Connect to SQLite database
     const db = new sqlite3.Database("modules/Medication-Management/medications.db");
-
+  
     // Retrieve brand name, generic name, and NDC from medications table based on the entered NDC (case-insensitive)
     db.get(
       "SELECT brand_name, generic_name, product_ndc FROM medications WHERE LOWER(product_ndc) = LOWER(?) OR LOWER(brand_name) = LOWER(?) OR LOWER(generic_name) = LOWER(?)",
@@ -38,7 +40,7 @@ module.exports = NodeHelper.create({
         } else {
           if (row) {
             const { brand_name, generic_name, product_ndc } = row;
-
+  
             // Create medication_schedule table if not exists
             db.run(`CREATE TABLE IF NOT EXISTS medication_schedule (
               id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -48,7 +50,7 @@ module.exports = NodeHelper.create({
               day TEXT,
               time TEXT
             )`);
-
+  
             // Check if the schedule already exists
             const existingScheduleQuery =
               "SELECT 1 FROM medication_schedule WHERE ndc = ? AND day = ? AND time = ?";
@@ -67,6 +69,20 @@ module.exports = NodeHelper.create({
                           console.error("Error inserting schedule:", err);
                         } else {
                           console.log(`Schedule for ${product_ndc} on ${day} at ${time} inserted successfully`);
+  
+                          // Implement scheduling logic here using node-schedule
+                          const [hours, minutes] = time.split(':').map(Number);
+                          const job = schedule.scheduleJob({ hour: hours, minute: minutes, dayOfWeek: days }, function () {
+                            console.log(`Take medication ${ndc} at ${time}`);
+                            
+                            // Send a notification to the medication_alarm module
+                            self.sendNotification("MEDICATION_ALARM", {
+                              title: 'Medication Reminder',
+                              message: `It's time to take ${brand_name || generic_name} (${product_ndc})`,
+                            });
+  
+                            // Add any additional logic you need for medication reminders
+                          });
                         }
                       }
                     );
@@ -82,37 +98,10 @@ module.exports = NodeHelper.create({
         }
       }
     );
-
-    // Close the database connection
-    db.close();
-
-    // Implement scheduling logic here using node-schedule
-    // const job = schedule.scheduleJob({ hour: 8, minute: 0, dayOfWeek: days }, function () {
-    //   console.log(`Take medication ${ndc} at ${times}`);
-    // });
-  },
-
-  deleteSchedule: function ({ ndc, days, times }) {
-    // Connect to SQLite database
-    const db = new sqlite3.Database("modules/Medication-Management/medications.db");
-  
-    // Delete schedules for the specified ndc, brand, generic, day, and time
-    db.run(
-      "DELETE FROM medication_schedule WHERE (LOWER(ndc) = LOWER(?) OR LOWER(brand_name) = LOWER(?) OR LOWER(generic_name) = LOWER(?)) AND day IN (?) AND time IN (?)",
-      [ndc, ndc, ndc, days.join(','), times.join(',')],
-      (err) => {
-        if (err) {
-          console.error("Error deleting schedules:", err);
-        } else {
-          console.log(`Schedules for ${ndc} on ${days} at ${times} deleted successfully`);
-        }
-      }
-    );
   
     // Close the database connection
     db.close();
   },
   
-
-
+  
 });
