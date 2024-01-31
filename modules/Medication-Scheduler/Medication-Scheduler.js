@@ -6,7 +6,9 @@
 //  */
 
 Module.register("Medication-Scheduler", {
-  defaults: {},
+  defaults: {
+   
+  },
 
   start: function () {
     Log.info("Medication-Scheduler module started...");
@@ -34,6 +36,7 @@ Module.register("Medication-Scheduler", {
     ndcInput.setAttribute("placeholder", "Enter NDC/Brand Name/Generic Name");
     ndcInput.className = "medication-input";
     wrapper.appendChild(ndcInput);
+
 
     // Select days
     const daysSelect = document.createElement("select");
@@ -66,8 +69,6 @@ Module.register("Medication-Scheduler", {
 
     wrapper.appendChild(timesSelect);
 
-
-
     // Schedule button
     const scheduleButton = document.createElement("button");
     scheduleButton.innerText = "Schedule Medication";
@@ -77,7 +78,10 @@ Module.register("Medication-Scheduler", {
       const selectedDays = Array.from(daysSelect.selectedOptions).map((option) => option.value);
       const selectedTimes = Array.from(timesSelect.selectedOptions).map((option) => option.value);
 
-      this.sendSocketNotification("SCHEDULE_MEDICATION", { ndc: ndcValue, days: selectedDays, times: selectedTimes });
+      this.sendSocketNotification("SCHEDULE_MEDICATION", { ndc: ndcValue, box: boxValue, quantity: quantityValue, days: selectedDays, times: selectedTimes });
+
+      // Update total quantity for the box
+      this.updateBoxQuantity(boxValue, quantityValue);
     });
     wrapper.appendChild(scheduleButton);
 
@@ -90,11 +94,13 @@ Module.register("Medication-Scheduler", {
       const selectedDays = Array.from(daysSelect.selectedOptions).map((option) => option.value);
       const selectedTimes = Array.from(timesSelect.selectedOptions).map((option) => option.value);
       this.sendSocketNotification("DELETE_SCHEDULE", { ndc: ndcValue, days: selectedDays, times: selectedTimes });
+
+      // Update total quantity for the box
+      this.updateBoxQuantity(boxValue, -quantityValue);
     });
     wrapper.appendChild(deleteButton);
 
     return wrapper;
   },
-
 
 });

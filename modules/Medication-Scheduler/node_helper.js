@@ -44,10 +44,10 @@ module.exports = NodeHelper.create({
   scheduleMedication: function ({ ndc, days, times }) {
     // Connect to SQLite database
     const db = new sqlite3.Database("modules/Medication-Management/medications.db");
-  
+
     // Retrieve brand name, generic name, and NDC from medications table based on the entered NDC (case-insensitive)
     db.get(
-      "SELECT brand_name, generic_name, product_ndc FROM medications WHERE LOWER(product_ndc) = LOWER(?) OR LOWER(brand_name) = LOWER(?) OR LOWER(generic_name) = LOWER(?)",
+      "SELECT brand_name, generic_name, product_ndc FROM patient_medications WHERE LOWER(product_ndc) = LOWER(?) OR LOWER(brand_name) = LOWER(?) OR LOWER(generic_name) = LOWER(?)",
       [ndc, ndc, ndc],
       (err, row) => {
         if (err) {
@@ -55,17 +55,18 @@ module.exports = NodeHelper.create({
         } else {
           if (row) {
             const { brand_name, generic_name, product_ndc } = row;
-  
+
             // Create medication_schedule table if not exists
             db.run(`CREATE TABLE IF NOT EXISTS medication_schedule (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-              ndc TEXT,
-              brand_name TEXT,
-              generic_name TEXT,
-              day TEXT,
-              time TEXT
-            )`);
-  
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  ndc TEXT,
+  brand_name TEXT,
+  generic_name TEXT,
+  day TEXT,
+  time TEXT
+)`);
+
+
             // Check if the schedule already exists
             const existingScheduleQuery =
               "SELECT 1 FROM medication_schedule WHERE ndc = ? AND day = ? AND time = ?";
@@ -114,7 +115,7 @@ module.exports = NodeHelper.create({
   deleteSchedule: function ({ ndc, days, times }) {
     // Connect to SQLite database
     const db = new sqlite3.Database("modules/Medication-Management/medications.db");
-  
+
     // Delete schedules for the specified ndc, brand, generic, day, and time
     db.run(
       "DELETE FROM medication_schedule WHERE (LOWER(ndc) = LOWER(?) OR LOWER(brand_name) = LOWER(?) OR LOWER(generic_name) = LOWER(?)) AND day IN (?) AND time IN (?)",
@@ -127,11 +128,11 @@ module.exports = NodeHelper.create({
         }
       }
     );
-  
+
     // Close the database connection
     db.close();
   },
-  
+
 
 
 });

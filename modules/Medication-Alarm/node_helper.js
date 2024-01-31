@@ -13,6 +13,9 @@ const notifier = require('node-notifier');
 module.exports = NodeHelper.create({
   start: function () {
     console.log("Medication-Alarm helper started...");
+    
+    // Schedule the function to check and trigger notifications at specific times
+    this.scheduleMedicationCheck();
   },
 
   socketNotificationReceived: function (notification, payload) {
@@ -42,91 +45,84 @@ module.exports = NodeHelper.create({
     return dayMap[dayName];
   },
 
-  scheduleMedication: function ({ ndc, days, times }) {
-    // Connect to SQLite database
+  scheduleMedicationCheck: function () {
+    
+    console.log("Medication scheduled")
+   
+    // Schedule the check every minute (adjust as needed)
+    schedule.scheduleJob('*/1 * * * *', () => {
+      // Check and trigger medication notifications at specific times
+      this.checkAndTriggerMedicationNotifications();
+    });
+  },
+
+  checkAndTriggerMedicationNotifications: function () {
+    console.log("Medication scheduled");
+
+    // Perform database query to retrieve medications for the current day and time
+    const currentDate = new Date();
+    const currentDay = currentDate.toLocaleDateString('en-US', { weekday: 'long' });
+    const currentTime = currentDate.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+
+    console.log("Current Date:", currentDay);
+    console.log("Current Time:", currentTime);
+
+    // Replace this with your actual database query logic
+    const medicationsForCurrentTimeQuery = `
+        SELECT ndc, brand_name, generic_name, day, time
+        FROM medication_schedule
+        WHERE time = ?
+    `;
+
     const db = new sqlite3.Database("modules/Medication-Management/medications.db");
 
-    // Retrieve brand name, generic name, and NDC from medications table based on the entered NDC (case-insensitive)
-    db.get(
-      "SELECT brand_name, generic_name, product_ndc FROM medications WHERE LOWER(product_ndc) = LOWER(?) OR LOWER(brand_name) = LOWER(?) OR LOWER(generic_name) = LOWER(?)",
-      [ndc, ndc, ndc],
-      (err, row) => {
+    db.all(medicationsForCurrentTimeQuery, [currentTime], (err, rows) => {
         if (err) {
-          console.error("Error retrieving medication details:", err);
-        } else {
-          if (row) {
-            const { brand_name, generic_name, product_ndc } = row;
+            console.error("Error retrieving medications:", err);
+            return;
+        }
 
-            // Create medication_schedule table if not exists
-            db.run(`CREATE TABLE IF NOT EXISTS medication_schedule (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-              ndc TEXT,
-              brand_name TEXT,
-              generic_name TEXT,
-              day TEXT,
-              time TEXT
-            )`);
+        console.log("Medications retrieved from the database:", rows);
 
-            // Check if the schedule already exists
-            const existingScheduleQuery =
-              "SELECT 1 FROM medication_schedule WHERE ndc = ? AND day = ? AND time = ?";
-            days.forEach((day) => {
-              times.forEach((time) => {
-                db.get(existingScheduleQuery, [product_ndc, day, time], (err, existingRow) => {
-                  // Use an arrow function here to maintain the correct 'this' context
-                  if (err) {
-                    console.error("Error checking for existing schedule:", err);
-                  } else if (!existingRow) {
-                    // If schedule does not exist, insert it
-                    db.run(
-                      "INSERT INTO medication_schedule (ndc, brand_name, generic_name, day, time) VALUES (?, ?, ?, ?, ?)",
-                      [product_ndc, brand_name, generic_name, day, time],
-                      (err) => {
-                        if (err) {
-                          console.error("Error inserting schedule:", err);
-                        } else {
-                          console.log(`Schedule for ${product_ndc} on ${day} at ${time} inserted successfully`);
+        // Filter medications based on the current day
+        const matchingMedications = rows.filter((medication) => {
+            const storedDay = medication.day;
+            // Convert stored day to a format compatible with toLocaleDateString
+            const storedDayFormatted = storedDay.charAt(0).toUpperCase() + storedDay.slice(1).toLowerCase();
+            return currentDay === storedDayFormatted;
+        });
 
-                          // Convert day name to numerical value
-                          const dayNumber = this.convertDayToNumber(day);
+        console.log("Matching Medications:", matchingMedications);
 
-                          // Implement scheduling logic here using node-schedule
-                          const [hours, minutes] = time.split(':').map(Number);
+        // Trigger notifications for each matching medication
+        matchingMedications.forEach((medication) => {
+            const { brand_name, generic_name, ndc, time } = medication;
 
-                          // Use a variable to capture the correct 'this' context
-                          const self = this;
-
-                          const job = schedule.scheduleJob({ hour: hours, minute: minutes, dayOfWeek: dayNumber }, function () {
-                            console.log(`Take medication ${ndc} at ${time}`);
-
-                            // Directly trigger the notification to the Medication-Alarm module
-                            self.sendSocketNotification("MEDICATION_ALARM_TEST", {
-                              title: 'Test Notification',
-                              message: `It's time to take ${brand_name || generic_name} (${product_ndc})`,
-                            });
-
-                            // Add any additional logic you need for medication reminders
-                          });
-                        }
-                      }
-                    );
-                  } else {
-                    console.log(`Schedule for ${product_ndc} on ${day} at ${time} already exists`);
-                  }
-                });
-              });
+              // Log the payload before sending the notification
+              console.log("Sending MEDICATION_ALARM_TEST notification with payload:", {
+                title: 'Medication Notification',
+                message: `It's time to take ${brand_name || generic_name} at ${time}`,
             });
 
-          } else {
-            console.error(`No medication found for NDC, brand name, or generic name: ${ndc}`);
-          }
-        }
-      }
-    );
+            // Send MEDICATION_ALARM_TEST notification to the Medication-Alarm module
+            this.sendSocketNotification("MEDICATION_ALARM_TEST", {
+              title: 'Medication Notification',
+                message: `It's time to take ${brand_name || generic_name}  at ${time}`,
+            });
+
+            // Trigger medication notification and alarm
+            this.triggerMedicationNotification(brand_name, generic_name, ndc, time);
+        });
+    });
 
     // Close the database connection
     db.close();
   },
 
+  // Define the triggerMedicationNotification function
+  triggerMedicationNotification: function (brandName, genericName, ndc, time) {
+    // Implement your logic to trigger the medication notification here
+    console.log("Triggering medication notification for:", brandName, genericName, ndc, time);
+  },
 
 });
