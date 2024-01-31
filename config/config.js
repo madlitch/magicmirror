@@ -80,9 +80,14 @@ let config = {
 		// 		location: "Oshawa, ON"
 		// 	}
 		// },
+
+		{
+			module: "Medication_Input",
+			position: "top_right"
+		},
 		{
 			module: "Medication-Scheduler",
-			position: "top_right",
+			position: "bottom_right",
 			header: "Medication Scheduler",
 			
 			
@@ -92,10 +97,6 @@ let config = {
 			module: "Medication-Alarm",
 			position: "top_center",
 			header: "Medication Alarm",
-			config: {
-			 
-			  medicationSchedule: []
-			}
 		  },
 		  
 		// {
