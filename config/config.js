@@ -82,7 +82,7 @@ let config = {
 		// },
 
 		{
-			module: "Medication_Input",
+			module: "Medication-Input",
 			position: "top_right"
 		},
 		{
