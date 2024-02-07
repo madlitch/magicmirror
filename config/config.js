@@ -83,15 +83,23 @@ let config = {
 
 		{
 			module: "Medication-Input",
-			position: "top_right"
+			position: "bottom_right"
+		},
+		{
+			module: "Medication-Management",
+	
 		},
 		{
 			module: "Medication-Scheduler",
-			position: "bottom_right",
+			position: "top_right",
 			header: "Medication Scheduler",
 			
 			
 		},
+		{
+			module: "Medication-Verification",
+			
+		  },
 
 		{
 			module: "Medication-Alarm",
