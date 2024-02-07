@@ -7,13 +7,13 @@
  * MIT Licensed.
  */
 
-Module.register("Medication-Management", {
+Module.register("Medication-Management", { 
   defaults: {},
 
-  requiresVersion: "2.1.0", // Required version of MagicMirror
 
   start: function () {
     // Fetch medication data from the API
+    Log.info("Medication-Management module started...");
     this.sendSocketNotification("FETCH_MEDICATION_DATA");
   },
   
@@ -25,11 +25,13 @@ Module.register("Medication-Management", {
       this.medicationData = payload;
       this.updateDom();
     }
-  },
+  }
+  
 
   
   
 });
+
 
 
 
