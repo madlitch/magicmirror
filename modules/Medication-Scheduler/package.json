@@ -1,11 +1,25 @@
 {
-  "name": "Medication_Management",
+  "name": "Medication-Scheduler",
   "version": "1.0.0",
   "description": "Todo: Insert description here!",
-  "main": "Medication_Management.js",
+  "main": "Medication-Scheduler.js",
   "author": "Lyba Mughees",
   "license": "MIT",
   "dependencies": {
-    "sqlite3": "^5.0.2"
+    "sqlite3": "^5.1.7"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "moduleFileExtensions": [
+      "js"
+    ]
+  },
+  "devDependencies": {
+    "chai": "^5.0.3",
+    "jest": "^29.7.0",
+    "mocha": "^10.2.0"
   }
 }

@@ -78,10 +78,9 @@ Module.register("Medication-Scheduler", {
       const selectedDays = Array.from(daysSelect.selectedOptions).map((option) => option.value);
       const selectedTimes = Array.from(timesSelect.selectedOptions).map((option) => option.value);
 
-      this.sendSocketNotification("SCHEDULE_MEDICATION", { ndc: ndcValue, box: boxValue, quantity: quantityValue, days: selectedDays, times: selectedTimes });
+      this.sendSocketNotification("SCHEDULE_MEDICATION", { ndc: ndcValue, days: selectedDays, times: selectedTimes });
 
-      // Update total quantity for the box
-      this.updateBoxQuantity(boxValue, quantityValue);
+      
     });
     wrapper.appendChild(scheduleButton);
 
@@ -95,8 +94,7 @@ Module.register("Medication-Scheduler", {
       const selectedTimes = Array.from(timesSelect.selectedOptions).map((option) => option.value);
       this.sendSocketNotification("DELETE_SCHEDULE", { ndc: ndcValue, days: selectedDays, times: selectedTimes });
 
-      // Update total quantity for the box
-      this.updateBoxQuantity(boxValue, -quantityValue);
+      
     });
     wrapper.appendChild(deleteButton);
 

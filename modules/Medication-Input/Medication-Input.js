@@ -1,9 +1,9 @@
-// * Magic Mirror
-//  * Module: Medication-Input
-//  *
-//  * By Lyba Mughees
-//  * MIT Licensed.
-//  */
+/* Magic Mirror
+ * Module: Medication-Input
+ *
+ * By Lyba Mughees
+ * MIT Licensed.
+ */
 
 Module.register("Medication-Input", {
   defaults: {},
@@ -28,48 +28,55 @@ Module.register("Medication-Input", {
     const wrapper = document.createElement("div");
     wrapper.className = "medication-scheduler";
 
-    // Input field for NDC/brand name/generic name
-    const ndcInput = document.createElement("input");
-    ndcInput.setAttribute("type", "text");
-    ndcInput.setAttribute("placeholder", "Enter NDC/Brand Name/Generic Name");
-    ndcInput.className = "medication-input";
-    wrapper.appendChild(ndcInput);
+    for (let i = 1; i <= 7; i++) {
+      // Medication container
+      const medicationContainer = document.createElement("div");
+      medicationContainer.className = "medication-container";
 
-    // Select pill box
-    const boxSelect = document.createElement("select");
-    boxSelect.className = "medication-select";
-    const boxOptions = ["Box 1", "Box 2", "Box 3", "Box 4", "Box 5", "Box 6", "Box 7"];
-    boxOptions.forEach((box) => {
-      const option = document.createElement("option");
-      option.value = box;
-      option.text = box;
-      boxSelect.appendChild(option);
-    });
-    wrapper.appendChild(boxSelect);
+      // Input field for NDC/brand name/generic name
+      const ndcInput = document.createElement("input");
+      ndcInput.setAttribute("type", "text");
+      ndcInput.setAttribute("placeholder", `Medication ${i}: Enter NDC/Brand Name/Generic Name`);
+      ndcInput.className = "medication-input";
+      medicationContainer.appendChild(ndcInput);
 
-    // Input field for Quantity
-    const quantityInput = document.createElement("input");
-    quantityInput.setAttribute("type", "number");
-    quantityInput.setAttribute("placeholder", "Enter Quantity");
-    quantityInput.setAttribute("min", "1"); // Set the minimum value to 1
-    quantityInput.className = "medication-input";
-    wrapper.appendChild(quantityInput);
+      // Select pill box
+      const boxSelect = document.createElement("select");
+      boxSelect.className = "medication-select";
+      const boxOptions = [`${i}`];
+      boxOptions.forEach((box) => {
+        const option = document.createElement("option");
+        option.value = box;
+        option.text = box;
+        boxSelect.appendChild(option);
+      });
+      medicationContainer.appendChild(boxSelect);
 
-    // Schedule button
-    const scheduleButton = document.createElement("button");
-    scheduleButton.innerText = "Schedule Medication";
-    scheduleButton.className = "medication-button";
-    scheduleButton.addEventListener("click", () => {
-      const ndcValue = ndcInput.value.trim();
-      const boxValue = boxSelect.value;
-      const quantityValue = Math.max(1, +quantityInput.value); // Ensure quantity is at least 1
+      // Input field for Quantity
+      const quantityInput = document.createElement("input");
+      quantityInput.setAttribute("type", "number");
+      quantityInput.setAttribute("placeholder", `Medication ${i}: Enter Quantity`);
+      quantityInput.setAttribute("min", "1"); // Set the minimum value to 1
+      quantityInput.className = "medication-input";
+      medicationContainer.appendChild(quantityInput);
 
-      this.sendSocketNotification("SCHEDULE_MEDICATION", { ndc: ndcValue, box: boxValue, quantity: quantityValue });
+      // Schedule button
+      const scheduleButton = document.createElement("button");
+      scheduleButton.innerText = `Medication ${i}: Add Medication`;
+      scheduleButton.className = "medication-button";
+      scheduleButton.addEventListener("click", () => {
+        const ndcValue = ndcInput.value.trim();
+        const boxValue = boxSelect.value;
+        const quantityValue = Math.max(1, +quantityInput.value); // Ensure quantity is at least 1
 
-      // Save to patient-medications table
-      this.sendSocketNotification("SAVE_PATIENT_MEDICATION", { ndc: ndcValue, box: boxValue, quantity: quantityValue });
-    });
-    wrapper.appendChild(scheduleButton);
+        // Save to patient-medications table
+        this.sendSocketNotification("SAVE_PATIENT_MEDICATION", { ndc: ndcValue, box: boxValue, quantity: quantityValue });
+      });
+      medicationContainer.appendChild(scheduleButton);
+
+      // Append the medication container to the wrapper
+      wrapper.appendChild(medicationContainer);
+    }
 
     return wrapper;
   },

@@ -24,45 +24,71 @@ module.exports = NodeHelper.create({
     // Connect to SQLite database
     const db = new sqlite3.Database("modules/Medication-Management/medications.db");
 
-    // Create patient-medications table if not exists
     db.run(`CREATE TABLE IF NOT EXISTS patient_medications (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      ndc TEXT,
-      box TEXT,
-      quantity INTEGER,
-      brand_name TEXT,  -- Add columns for additional medication details
-      generic_name TEXT
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        ndc TEXT,
+        box TEXT,
+        quantity INTEGER,
+        brand_name TEXT,
+        generic_name TEXT
     )`);
 
-    // Retrieve medication details from the medications table
+    // Check if there is already a medication in the target box
     db.get(
-      "SELECT brand_name, generic_name FROM medications WHERE LOWER(product_ndc) = LOWER(?) OR LOWER(brand_name) = LOWER(?) OR LOWER(generic_name) = LOWER(?)",
-      [ndc, ndc, ndc],
-      (err, row) => {
-        if (err) {
-          console.error("Error retrieving medication details:", err);
-        } else if (row) {
-          const { brand_name, generic_name } = row;
+        "SELECT 1 FROM patient_medications WHERE LOWER(box) = LOWER(?) LIMIT 1",
+        [box],
+        (err, existingBoxRow) => {
+            if (err) {
+                console.error("Error checking for existing medication in the box:", err);
+            } else if (existingBoxRow) {
+                console.log(`Patient medication box ${box} already contains data. Skipping insertion.`);
+            } else {
+                // If the box is empty, proceed with the insertion
+                // Check if the medication with the given ndc already exists in patient_medications
+                db.get(
+                    "SELECT 1 FROM patient_medications WHERE LOWER(ndc) = LOWER(?) OR LOWER(brand_name) = LOWER(?) OR LOWER(generic_name) = LOWER(?) LIMIT 1",
+                    [ndc, ndc, ndc],
+                    (err, existingRow) => {
+                        if (err) {
+                            console.error("Error checking for existing medication:", err);
+                        } else if (!existingRow) {
+                            // If medication does not exist, insert it
+                            db.get(
+                                "SELECT brand_name, generic_name, product_ndc FROM medications WHERE LOWER(product_ndc) = LOWER(?) OR LOWER(brand_name) = LOWER(?) OR LOWER(generic_name) = LOWER(?)",
+                                [ndc, ndc, ndc],
+                                (err, row) => {
+                                    if (err) {
+                                        console.error("Error retrieving medication details:", err);
+                                    } else if (row) {
+                                        const { brand_name, generic_name, product_ndc } = row;
 
-          // Insert medication details into patient-medications table
-          db.run(
-            "INSERT INTO patient_medications (ndc, box, quantity, brand_name, generic_name) VALUES (?, ?, ?, ?, ?)",
-            [ndc, box, quantity, brand_name, generic_name],
-            (err) => {
-              if (err) {
-                console.error("Error inserting patient medication:", err);
-              } else {
-                console.log(`Patient medication for ${ndc} in ${box} with quantity ${quantity} inserted successfully`);
-              }
+                                        // Insert medication details into patient-medications table
+                                        db.run(
+                                            "INSERT INTO patient_medications (ndc, box, quantity, brand_name, generic_name) VALUES (?, ?, ?, ?, ?)",
+                                            [product_ndc, box, quantity, brand_name, generic_name],
+                                            (err) => {
+                                                if (err) {
+                                                    console.error("Error inserting patient medication:", err);
+                                                } else {
+                                                    console.log(`Patient medication for ${product_ndc} in ${box} with quantity ${quantity} inserted successfully`);
+                                                }
+                                            }
+                                        );
+                                    } else {
+                                        console.error(`No medication found for NDC, brand name, or generic name: ${ndc}`);
+                                    }
+                                }
+                            );
+                        } else {
+                            console.log(`Patient medication with NDC ${ndc} already exists. Skipping insertion.`);
+                        }
+                    }
+                );
             }
-          );
-        } else {
-          console.error(`No medication found for NDC, brand name, or generic name: ${ndc}`);
         }
-      }
     );
 
     // Close the database connection
     db.close();
-  },
+},
 });

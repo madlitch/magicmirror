@@ -1,8 +1,8 @@
 {
-  "name": "Medication-Alarm",
+  "name": "Medication-Verification_module",
   "version": "1.0.0",
   "description": "Todo: Insert description here!",
-  "main": "Medication-Alarm.js",
+  "main": "",
   "author": "Lyba Mughees",
   "license": "MIT",
   "devDependencies": {}
