@@ -42,6 +42,14 @@ let config = {
 		{
 			module: "alert"
 		},
+
+		{
+			module: 'MMM-ModuleScheduler',
+			config: {
+				// SHOW ALL MODULES EXCEPT clock AND calender BETWEEN 06:00 AND 22:00
+				global_schedule: {from: '0 6 * * *', to: '0 22 * * *', ignoreModules: ['Medication-Input', 'calendar'] },
+			}
+		},
 		{
 			module: "updatenotification",
 			position: "top_bar"
@@ -83,7 +91,8 @@ let config = {
 
 		{
 			module: "Medication-Input",
-			position: "bottom_right"
+			position: "bottom_right",
+			
 		},
 		{
 			module: "Medication-Management",
@@ -91,7 +100,7 @@ let config = {
 		},
 		{
 			module: "Medication-Scheduler",
-			position: "top_right",
+			position: "top_center",
 			header: "Medication Scheduler",
 			
 			
@@ -103,7 +112,7 @@ let config = {
 
 		{
 			module: "Medication-Alarm",
-			position: "top_center",
+			position: "top_right",
 			header: "Medication Alarm",
 		  },
 		  
