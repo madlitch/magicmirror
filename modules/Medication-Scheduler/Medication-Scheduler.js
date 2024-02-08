@@ -6,7 +6,9 @@
 //  */
 
 Module.register("Medication-Scheduler", {
-  defaults: {},
+  defaults: {
+   
+  },
 
   start: function () {
     Log.info("Medication-Scheduler module started...");
@@ -35,6 +37,7 @@ Module.register("Medication-Scheduler", {
     ndcInput.className = "medication-input";
     wrapper.appendChild(ndcInput);
 
+
     // Select days
     const daysSelect = document.createElement("select");
     daysSelect.multiple = true;
@@ -55,7 +58,7 @@ Module.register("Medication-Scheduler", {
 
     // Create options for all hours and minutes
     for (let hours = 0; hours <= 23; hours++) {
-      for (let minutes = 0; minutes < 60; minutes += 60) {
+      for (let minutes = 0; minutes < 60; minutes += 30) {
         const formattedTime = `${(hours < 10 ? '0' : '') + hours}:${(minutes === 0 ? '00' : minutes)}`;
         const option = document.createElement("option");
         option.value = formattedTime;
@@ -65,8 +68,6 @@ Module.register("Medication-Scheduler", {
     }
 
     wrapper.appendChild(timesSelect);
-
-
 
     // Schedule button
     const scheduleButton = document.createElement("button");
@@ -78,6 +79,8 @@ Module.register("Medication-Scheduler", {
       const selectedTimes = Array.from(timesSelect.selectedOptions).map((option) => option.value);
 
       this.sendSocketNotification("SCHEDULE_MEDICATION", { ndc: ndcValue, days: selectedDays, times: selectedTimes });
+
+      
     });
     wrapper.appendChild(scheduleButton);
 
@@ -90,11 +93,12 @@ Module.register("Medication-Scheduler", {
       const selectedDays = Array.from(daysSelect.selectedOptions).map((option) => option.value);
       const selectedTimes = Array.from(timesSelect.selectedOptions).map((option) => option.value);
       this.sendSocketNotification("DELETE_SCHEDULE", { ndc: ndcValue, days: selectedDays, times: selectedTimes });
+
+      
     });
     wrapper.appendChild(deleteButton);
 
     return wrapper;
   },
-
 
 });

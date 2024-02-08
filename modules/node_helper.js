@@ -63,7 +63,7 @@ module.exports = NodeHelper.create({
   saveMedicationsToDatabase: function (medications) {
     // Connect to SQLite database
     const db = new sqlite3.Database("modules/Medication-Management/medications.db");
-  
+
     // Create medications table if not exists
     db.run(`CREATE TABLE IF NOT EXISTS medications (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -73,38 +73,30 @@ module.exports = NodeHelper.create({
       route TEXT,
       product_ndc TEXT
     )`);
-  
+
     // Insert medications into the table
-    const promises = medications.map((medication) => {
-      return new Promise((resolve, reject) => {
-        db.run(
-          "INSERT INTO medications (brand_name, generic_name, dosage_form, route, product_ndc) VALUES (?, ?, ?, ?, ?)",
-          [
-            medication.brand_name,
-            medication.generic_name,
-            medication.dosage_form,
-            medication.route,
-            medication.product_ndc,
-          ],
-          function (err) {
-            if (err) {
-              console.error("Error inserting medication:", err);
-              reject(err);
-            } else {
-              //console.log("Medication inserted successfully");
-              resolve();
-            }
+    medications.forEach((medication) => {
+      db.run(
+        "INSERT INTO medications (brand_name, generic_name, dosage_form, route, product_ndc) VALUES (?, ?, ?, ?, ?)",
+        [
+          medication.brand_name,
+          medication.generic_name,
+          medication.dosage_form,
+          medication.route,
+          medication.product_ndc,
+        ],
+        function (err) {
+          if (err) {
+            console.error("Error inserting medication:", err);
+          } else {
+            console.log("Medication inserted successfully");
           }
-        );
-      });
+        }
+      );
     });
-  
+
     // Close the database connection
     db.close();
-  
-    // Return a promise that resolves when all insert operations are complete
-    return Promise.all(promises);
   },
-  
 });
 
