@@ -39,6 +39,7 @@ with handsModule.Hands(static_image_mode=False, min_detection_confidence=0.7, mi
                 # Assuming that if the distance is less than a certain threshold, the hand is near the mouth
                 if thumb_mouth_distance < 0.05:
                     print("Hand near the mouth!")
+                    print("HAND_NEAR_MOUTH")  # Send message indicating hand is near the mouth
 
         # Display the current frame
         cv2.imshow("Medication Intake Verification", frame)
@@ -47,3 +48,7 @@ with handsModule.Hands(static_image_mode=False, min_detection_confidence=0.7, mi
         # If 'q' is pressed on the keyboard, stop the system
         if key == ord("q"):
             break
+
+# Release the camera and close OpenCV windows
+cap.release()
+cv2.destroyAllWindows()

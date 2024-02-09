@@ -35,6 +35,8 @@ Module.register("Medication-Alarm", {
       this.notificationSound.loop = false;
       this.notificationSound.pause();
     }
+
+    this.sendNotification("START_MEDICATION_VERIFICATION");
   },
 
   getStyles: function () {
