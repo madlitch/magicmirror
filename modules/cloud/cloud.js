@@ -20,15 +20,37 @@ Module.register("cloud", {
     notificationReceived: function (notification, payload, sender) {
 
         if (notification === "CLOUD_UPDATE_MEDICATIONS") {
-            this.sendSocketNotification(this.name + "UPDATE_MEDICATIONS", payload);
+            this.sendSocketNotification("CLOUD_UPDATE_MEDICATIONS", payload);
         }
 
         if (notification === "CLOUD_PUSH_SESSION") {
-            this.sendSocketNotification(this.name + "PUSH_SESSION", payload);
+            this.sendSocketNotification("CLOUD_PUSH_SESSION", payload);
+        }
+
+        if (notification === "CLOUD_SEARCH_MEDICATIONS") {
+            this.sendSocketNotification("CLOUD_SEARCH_MEDICATIONS", payload);
+        }
+
+        if (notification === "CLOUD_GET_MEDICATION") {
+            this.sendSocketNotification("CLOUD_GET_MEDICATION", payload);
         }
     },
 
     socketNotificationReceived: function (notification, payload) {
+        if (notification === "CLOUD_UPDATE_MEDICATIONS_RESULT") {
+            this.sendNotification("CLOUD_UPDATE_MEDICATIONS_RESULT", payload);
+        }
 
+        if (notification === "CLOUD_PUSH_SESSION_RESULT") {
+            this.sendNotification("CLOUD_PUSH_SESSION_RESULT", payload);
+        }
+
+        if (notification === "CLOUD_SEARCH_MEDICATIONS_RESULT") {
+            this.sendNotification("CLOUD_SEARCH_MEDICATIONS_RESULT", payload);
+        }
+
+        if (notification === "CLOUD_GET_MEDICATION_RESULT") {
+            this.sendNotification("CLOUD_GET_MEDICATION_RESULT", payload);
+        }
     }
 });
