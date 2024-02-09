@@ -28,3 +28,14 @@
   padding: 10px; /* Add padding for spacing */
 }
 
+.medication-notification {
+  /* Add margin to create space between notifications */
+  margin-bottom: 10px; /* Adjust as needed */
+}
+
+.medication-button {
+  /* Add margin around the reset button */
+  margin-top: 20px; /* Adjust as needed */
+}
+
+

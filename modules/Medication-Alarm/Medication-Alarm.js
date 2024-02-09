@@ -15,17 +15,32 @@
 Module.register("Medication-Alarm", {
   start: function () {
     console.log("Medication-Alarm module started...");
-
-    // Create an audio element for the sound effect
-    this.notificationSound = new Audio("modules/Medication-Alarm/time_to_take_your_pill.mp3"); // Update the path to your sound file
-
-    // Variable to track whether the alarm is active
+    this.notificationSound = new Audio("modules/Medication-Alarm/time_to_take_your_pill.mp3");
     this.alarmActive = false;
-
-    // Create a wrapper for notifications
     this.notificationsWrapper = document.createElement("div");
     this.notificationsWrapper.className = "medication-notifications";
-    this.sendSocketNotification("MEDICATION_ALARM_TEST"); 
+    this.sendSocketNotification("MEDICATION_ALARM_TEST");
+    this.notificationReceivedTime = null;
+  },
+
+  stopAlarm: function () {
+    if (this.notificationReceivedTime) {
+      const stopTime = new Date().getTime();
+      const elapsedTime = (stopTime - this.notificationReceivedTime) / 1000;
+      console.log("Time elapsed (seconds):", elapsedTime);
+      this.notificationReceivedTime = null;
+    }
+    if (this.notificationSound instanceof Audio) {
+      this.alarmActive = false;
+      this.notificationSound.loop = false;
+      this.notificationSound.pause();
+    }
+
+    this.sendNotification("START_MEDICATION_VERIFICATION");
+  },
+
+  getStyles: function () {
+    return ["Medication-Alarm.css"];
   },
 
   // Function to create a notification element
@@ -80,14 +95,6 @@ Module.register("Medication-Alarm", {
   //   }
   // },
 
-  stopAlarm: function () {
-    // Stop the sound effect
-    if (this.notificationSound instanceof Audio) {
-      this.alarmActive = false;
-      this.notificationSound.loop = false;
-      this.notificationSound.pause();
-    }
-  },
 
   getDom: function () {
     const wrapper = document.createElement("div");
@@ -121,16 +128,20 @@ Module.register("Medication-Alarm", {
 
   socketNotificationReceived: function (notification, payload) {
     if (notification === "MEDICATION_ALARM_TEST") {
-      
-           
+
+
+
+      this.notificationReceivedTime = new Date().getTime(); // Capture the time when notification is received
+
       // Handle medication notifications received from the helper
       this.displayMedicationNotification(payload);
       this.alarmActive = true;
       this.notificationSound.loop = true;
       this.notificationSound.play();
-    
 
-      
+
+
+
     }
   },
 });
