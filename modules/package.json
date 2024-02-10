@@ -1,11 +1,13 @@
 {
-  "name": "Medication_Management",
+  "name": "Medication-Management",
   "version": "1.0.0",
   "description": "Todo: Insert description here!",
-  "main": "Medication_Management.js",
+  "main": "Medication-Management.js",
   "author": "Lyba Mughees",
   "license": "MIT",
   "dependencies": {
+    "helper": "^0.0.13",
+    "node": "^21.6.1",
     "sqlite3": "^5.0.2"
   },
   "scripts": {
@@ -13,5 +15,11 @@
   },
   "jest": {
     "testEnvironment": "node"
+  },
+  "devDependencies": {
+    "chai": "^5.0.3",
+    "jest": "^29.7.0",
+    "mocha": "^10.2.0",
+    "sinon": "^17.0.1"
   }
 }

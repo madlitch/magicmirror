@@ -6,7 +6,6 @@
  */
 
 const NodeHelper = require("node_helper");
-//const schedule = require("node-schedule");
 const sqlite3 = require("sqlite3").verbose();
 
 module.exports = NodeHelper.create({
@@ -24,6 +23,9 @@ module.exports = NodeHelper.create({
     } else if (notification === "MEDICATION_ALARM_TEST") {
       // Send a test notification to the Medication-Alarm module
       this.sendSocketNotification(notification, payload);
+    } else if (notification === "GET_MEDICATIONS") {
+      // Retrieve medication options from the database and send them to the frontend
+      this.searchMedication();
     }
   },
 
@@ -50,7 +52,7 @@ module.exports = NodeHelper.create({
   scheduleMedication: function ({ ndc, days, times }) {
     // Connect to SQLite database
     const db = new sqlite3.Database("modules/Medication-Management/medications.db");
-  
+
     // Retrieve brand name, generic name, and NDC from medications table based on the entered NDC (case-insensitive)
     db.get(
       "SELECT brand_name, generic_name, ndc FROM patient_medications WHERE LOWER(ndc) = LOWER(?) OR LOWER(brand_name) = LOWER(?) OR LOWER(generic_name) = LOWER(?)",
@@ -61,7 +63,7 @@ module.exports = NodeHelper.create({
         } else {
           if (row) {
             const { brand_name, generic_name, ndc } = row;
-  
+
             // Create medication_schedule table if not exists
             db.run(`CREATE TABLE IF NOT EXISTS medication_schedule (
               id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -71,14 +73,13 @@ module.exports = NodeHelper.create({
               day TEXT,
               time TEXT
             )`);
-  
+
             // Check if the schedule already exists
             const existingScheduleQuery =
               "SELECT 1 FROM medication_schedule WHERE ndc = ? AND day = ? AND time = ?";
             days.forEach((day) => {
               times.forEach((time) => {
                 db.get(existingScheduleQuery, [ndc, day, time], (err, existingRow) => {
-                  // Use an arrow function here to maintain the correct 'this' context
                   if (err) {
                     console.error("Error checking for existing schedule:", err);
                   } else if (!existingRow) {
@@ -115,7 +116,7 @@ module.exports = NodeHelper.create({
   deleteSchedule: function ({ ndc, days, times }) {
     // Connect to SQLite database
     const db = new sqlite3.Database("modules/Medication-Management/medications.db");
-  
+
     // Delete schedules for the specified ndc, brand, generic, day, and time
     db.run(
       "DELETE FROM medication_schedule WHERE (LOWER(ndc) = LOWER(?) OR LOWER(brand_name) = LOWER(?) OR LOWER(generic_name) = LOWER(?)) AND day IN (?) AND time IN (?)",
@@ -128,11 +129,29 @@ module.exports = NodeHelper.create({
         }
       }
     );
-  
+
     // Close the database connection
     db.close();
   },
-  
 
+  searchMedication: function () {
+    // Connect to SQLite database
+    const db = new sqlite3.Database("modules/Medication-Management/medications.db");
 
+    // Search for medications
+    db.all(
+      "SELECT * FROM patient_medications",
+      (err, rows) => {
+        if (err) {
+          console.error("Error searching for medications:", err);
+        } else {
+          // Send the search results back to the frontend
+          this.sendSocketNotification("MEDICATION_OPTIONS", rows);
+        }
+      }
+    );
+
+    // Close the database connection
+    db.close();
+  }
 });
