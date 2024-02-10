@@ -7,48 +7,18 @@
 
 const NodeHelper = require("node_helper");
 const sqlite3 = require("sqlite3").verbose();
-const axios = require("axios");
 
 module.exports = NodeHelper.create({
     start: function () {
         console.log("Medication-Input helper started...");
+        this.sendSocketNotification("MEDICATION_INTAKE_STARTED");
     },
 
     socketNotificationReceived: function (notification, payload) {
         if (notification === "SAVE_PATIENT_MEDICATION") {
             // Handle saving medication to patient-medications table
-            this.savePatientMedication(payload);
+            this.saveToPatientMedicationsTable(payload);
         }
-    },
-
-    checkMedicationInCloud: function (ndc) {
-        return new Promise((resolve, reject) => {
-            // Send request to cloud to check if medication exists
-            const url = `http://0.0.0.0:8081/api/search_medication/${ndc}`;
-            axios.get(url)
-                .then(response => {
-                    resolve(response.data); // Resolve with medication data if found
-                })
-                .catch(error => {
-                    reject(error); // Reject with error if request fails
-                });
-        });
-    },
-
-    savePatientMedication: function ({ ndc, box, quantity }) {
-        // Check if the medication exists in the cloud
-        this.checkMedicationInCloud(ndc)
-            .then(medicationData => {
-                if (medicationData) {
-                    // Medication exists in the cloud, proceed with saving to patient-medications table
-                    this.saveToPatientMedicationsTable(ndc, box, quantity, medicationData);
-                } else {
-                    console.error(`Medication with NDC ${ndc} does not exist in the cloud.`);
-                }
-            })
-            .catch(error => {
-                console.error("Error checking medication in the cloud:", error);
-            });
     },
 
     saveToPatientMedicationsTable: function (ndc, box, quantity, medicationData) {
@@ -65,17 +35,27 @@ module.exports = NodeHelper.create({
         )`);
 
         // Insert medication details into patient-medications table
-        db.run(
-            "INSERT INTO patient_medications (ndc, box, quantity, brand_name, generic_name) VALUES (?, ?, ?, ?, ?)",
-            [medicationData.product_ndc, box, quantity, medicationData.brand_name, medicationData.generic_name],
-            (err) => {
-                if (err) {
-                    console.error("Error inserting patient medication:", err);
-                } else {
-                    console.log(`Patient medication for ${medicationData.product_ndc} in ${box} with quantity ${quantity} inserted successfully`);
+        medicationData.forEach(med => {
+            db.run(
+                "INSERT INTO patient_medications (ndc, box, quantity, brand_name, generic_name) VALUES (?, ?, ?, ?, ?)",
+                [med.product_ndc, box, quantity, med.brand_name, med.generic_name],
+                (err) => {
+                    if (err) {
+                        console.error("Error inserting patient medication:", err);
+                    } else {
+                        console.log(`Patient medication for ${med.product_ndc} in ${box} with quantity ${quantity} inserted successfully`);
+                        // Send notification to the cloud module
+                        this.sendSocketNotification("CLOUD_UPDATE_MEDICATIONS", {
+                            ndc: med.product_ndc,
+                            box: box,
+                            quantity: quantity,
+                            brand_name: med.brand_name,
+                            generic_name: med.generic_name
+                        });
+                    }
                 }
-            }
-        );
+            );
+        });
 
         // Close the database connection
         db.close();
