@@ -42,7 +42,6 @@ module.exports = NodeHelper.create({
         this.sendSocketNotification("VERIFY_MEDICATION_RESULT", {
           success: true,
           message: "Medication intake verified successfully.",
-          // Add any additional information you want to send
         });
 
         // End the Python script execution
