@@ -14,10 +14,18 @@ Module.register("Medication-Input", {
     },
 
     socketNotificationReceived: function (notification, payload) {
-        if (notification === "MEDICATION_DATA_FOUND" || notification === "CLOUD_SEARCH_MEDICATIONS_RESULT") {
-            this.updateDom();
+        if (notification === "CLOUD_SEARCH_MEDICATIONS_RESULT") {
+            const medicationData = payload.medicationData;
+
+            this.sendSocketNotification("SAVE_PATIENT_MEDICATION", {
+                ndc: payload.ndc,
+                box: payload.box,
+                quantity: payload.quantity,
+                medicationData: medicationData
+            });
         }
     },
+
 
     getStyles: function () {
         return ["medication-scheduler.css"];
@@ -46,6 +54,7 @@ Module.register("Medication-Input", {
                     this.sendSocketNotification("CLOUD_SEARCH_MEDICATIONS", { searchTerm });
                 }
             });
+
 
             medicationContainer.appendChild(ndcInput);
 

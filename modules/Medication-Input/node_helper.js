@@ -17,7 +17,8 @@ module.exports = NodeHelper.create({
     socketNotificationReceived: function (notification, payload) {
         if (notification === "SAVE_PATIENT_MEDICATION") {
             // Handle saving medication to patient-medications table
-            this.saveToPatientMedicationsTable(payload);
+            this.saveToPatientMedicationsTable(payload.ndc, payload.box, payload.quantity, payload.medicationData);
+
         }
     },
 
