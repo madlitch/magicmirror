@@ -21,19 +21,8 @@ module.exports = NodeHelper.create({
             console.log(payload);
         }
 
-        if (notification === "TEST") {
-            axios.post(`${cloud_url}/api/test`, {
-                message: "cloud working"
-            }).then(r => {
-                console.log(r.data);
-            }).catch(function (error) {
-                console.log("Connection to server failed");
-                console.log(error.cause);
-            });
-        }
-
         if (notification === "CLOUD_UPDATE_MEDICATIONS") {
-            axios.post(`${cloud_url}/api/medications`, payload
+            axios.post(`${cloud_url}/api/medication`, payload
             ).then(r => {
                 this.sendSocketNotification("CLOUD_UPDATE_MEDICATIONS_RESULT", r.data)
             }).catch(function (error) {
@@ -43,9 +32,19 @@ module.exports = NodeHelper.create({
         }
 
         if (notification === "CLOUD_PUSH_SESSION") {
-            axios.post(`${cloud_url}/api/medication-intake-analytics`, payload
+            axios.post(`${cloud_url}/api/session`, payload
             ).then(r => {
                 this.sendSocketNotification("CLOUD_PUSH_SESSION_RESULT", r.data)
+            }).catch(function (error) {
+                console.log(`${notification} failed:`);
+                console.log(error.cause);
+            });
+        }
+
+        if (notification === "CLOUD_PUSH_SCHEDULE") {
+            axios.post(`${cloud_url}/api/schedule`, payload
+            ).then(r => {
+                this.sendSocketNotification("CLOUD_PUSH_SCHEDULE_RESULT", r.data)
             }).catch(function (error) {
                 console.log(`${notification} failed:`);
                 console.log(error.cause);

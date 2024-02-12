@@ -27,6 +27,10 @@ Module.register("cloud", {
             this.sendSocketNotification("CLOUD_PUSH_SESSION", payload);
         }
 
+        if (notification === "CLOUD_PUSH_SCHEDULE") {
+            this.sendSocketNotification("CLOUD_PUSH_SCHEDULE", payload);
+        }
+
         if (notification === "CLOUD_SEARCH_MEDICATIONS") {
             this.sendSocketNotification("CLOUD_SEARCH_MEDICATIONS", payload);
         }
@@ -39,6 +43,10 @@ Module.register("cloud", {
     socketNotificationReceived: function (notification, payload) {
         if (notification === "CLOUD_UPDATE_MEDICATIONS_RESULT") {
             this.sendNotification("CLOUD_UPDATE_MEDICATIONS_RESULT", payload);
+        }
+
+        if (notification === "CLOUD_PUSH_SESSION_RESULT") {
+            this.sendSocketNotification("CLOUD_PUSH_SESSION_RESULT", payload);
         }
 
         if (notification === "CLOUD_PUSH_SESSION_RESULT") {
