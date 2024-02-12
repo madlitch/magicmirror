@@ -7,4 +7,15 @@
   .medication-input, .medication-select, .medication-button {
     margin: 5px;
   }
+  .medication-select {
+    /* Adjust position to prevent overlap */
+    position: absolute; /* or relative, fixed, etc. */
+    margin-top: 20px;
+    top: 100px; /* Adjust as needed */
+    left: 20px; /* Adjust as needed */
+    z-index: 1000; /* Set a higher z-index to ensure it appears above other elements if necessary */
+    /* Add any other styles as needed */
+}
+
+
   

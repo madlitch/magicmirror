@@ -9,16 +9,23 @@ Module.register("Medication-Scheduler", {
   defaults: {
    
   },
+  defaults: {
+   
+  },
 
   start: function () {
     Log.info("Medication-Scheduler module started...");
-    this.sendSocketNotification("MEDICATION_SCHEDULER_STARTED");
+    // Fetch medication options when the module starts
+    this.sendSocketNotification("GET_MEDICATIONS");
   },
 
   socketNotificationReceived: function (notification, payload) {
     if (notification === "MEDICATION_DATA_FOUND") {
       this.medicationData = payload;
       this.updateDom();
+    } else if (notification === "MEDICATION_OPTIONS") {
+      // Update the medication dropdown list with options received from the backend
+      this.updateMedicationOptions(payload);
     }
   },
 
@@ -30,13 +37,14 @@ Module.register("Medication-Scheduler", {
     const wrapper = document.createElement("div");
     wrapper.className = "medication-scheduler";
 
-    // Input field for NDC/brand name/generic name
-    const ndcInput = document.createElement("input");
-    ndcInput.setAttribute("type", "text");
-    ndcInput.setAttribute("placeholder", "Enter NDC/Brand Name/Generic Name");
-    ndcInput.className = "medication-input";
-    wrapper.appendChild(ndcInput);
-
+    // Select medication dropdown list
+    const medicationDropdown = document.createElement("select");
+    medicationDropdown.className = "medication-select";
+    medicationDropdown.addEventListener("change", () => {
+      // Set the value of the NDC input field to the selected medication's NDC
+      ndcInput.value = medicationDropdown.value;
+    });
+    wrapper.appendChild(medicationDropdown);
 
     // Select days
     const daysSelect = document.createElement("select");
@@ -74,7 +82,7 @@ Module.register("Medication-Scheduler", {
     scheduleButton.innerText = "Schedule Medication";
     scheduleButton.className = "medication-button";
     scheduleButton.addEventListener("click", () => {
-      const ndcValue = ndcInput.value.trim();
+      const ndcValue = medicationDropdown.value.trim(); // Get the selected medication's NDC
       const selectedDays = Array.from(daysSelect.selectedOptions).map((option) => option.value);
       const selectedTimes = Array.from(timesSelect.selectedOptions).map((option) => option.value);
 
@@ -89,7 +97,7 @@ Module.register("Medication-Scheduler", {
     deleteButton.innerText = "Delete Schedule";
     deleteButton.className = "medication-button";
     deleteButton.addEventListener("click", () => {
-      const ndcValue = ndcInput.value.trim();
+      const ndcValue = medicationDropdown.value.trim(); // Get the selected medication's NDC
       const selectedDays = Array.from(daysSelect.selectedOptions).map((option) => option.value);
       const selectedTimes = Array.from(timesSelect.selectedOptions).map((option) => option.value);
       this.sendSocketNotification("DELETE_SCHEDULE", { ndc: ndcValue, days: selectedDays, times: selectedTimes });
@@ -101,4 +109,13 @@ Module.register("Medication-Scheduler", {
     return wrapper;
   },
 
+  updateMedicationOptions: function (medications) {
+    const medicationDropdown = document.querySelector(".medication-select");
+    medications.forEach(medication => {
+      const option = document.createElement("option");
+      option.value = medication.ndc;
+      option.text = `${medication.brand_name} (${medication.generic_name})`;
+      medicationDropdown.appendChild(option);
+    });
+  }
 });
