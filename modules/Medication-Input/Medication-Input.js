@@ -130,7 +130,7 @@ Module.register("Medication-Input", {
             this.log(medicines);
 
             // Send medication data to the Node Helper
-            this.sendNotification("SAVE_PATIENT_MEDICATION", medicines);
+            this.sendSocketNotification("SAVE_PATIENT_MEDICATION", medicines);
 
                // Prepare medication data object
                const medicationData = {
