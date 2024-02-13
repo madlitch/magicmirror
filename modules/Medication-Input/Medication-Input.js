@@ -20,6 +20,16 @@ Module.register("Medication-Input", {
         }
     },
 
+    notificationReceived: function (notification, payload) {
+        if (notification === "CLOUD_SEARCH_MEDICATIONS_RESULT") {
+            this.log(payload);
+        }
+    },
+
+    log: function (data) {
+        this.sendSocketNotification("LOG", data);
+    },
+
     getStyles: function () {
         return ["medication-scheduler.css"];
     },
@@ -44,7 +54,9 @@ Module.register("Medication-Input", {
                 const searchTerm = event.target.value.trim();
                 if (searchTerm.length > 0) {
                     // If the input is not empty, send a socket notification to start medication search
-                    this.sendNotification("CLOUD_SEARCH_MEDICATIONS", { searchTerm });
+                    this.sendNotification("CLOUD_SEARCH_MEDICATIONS", searchTerm );
+                    this.log(searchTerm);
+                    this.log("hello");
                 }
             });
 
