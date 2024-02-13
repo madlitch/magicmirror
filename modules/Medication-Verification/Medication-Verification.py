@@ -29,9 +29,6 @@ with handsModule.Hands(static_image_mode=False, min_detection_confidence=0.7, mi
         # Check if hands are detected
         if results.multi_hand_landmarks is not None:
             for handLandmarks in results.multi_hand_landmarks:
-                # Draw landmarks and connections on the frame
-                drawingModule.draw_landmarks(frame_rgb, handLandmarks, handsModule.HAND_CONNECTIONS)
-
                 # Check if the hand is near the mouth based on specific landmarks
                 thumb_tip = handLandmarks.landmark[handsModule.HandLandmark.THUMB_TIP]
                 index_finger_tip = handLandmarks.landmark[handsModule.HandLandmark.INDEX_FINGER_TIP]
@@ -42,11 +39,7 @@ with handsModule.Hands(static_image_mode=False, min_detection_confidence=0.7, mi
                 # Assuming that if the distance is less than a certain threshold, the hand is near the mouth
                 if thumb_mouth_distance < 0.05:
                     print("Hand near the mouth!")
-                    # Display green checkmark on the screen
-                    checkmark = cv2.imread('green_checkmark.png')  # Load green checkmark image
-                    cv2.imshow("Green Checkmark", checkmark)
-                    cv2.waitKey(3000)  # Display the checkmark for 3 seconds
-                    cv2.destroyAllWindows()  # Close the window
+                    # Exit the program
                     sys.exit()  # Exit the program
 
         # Display the frame

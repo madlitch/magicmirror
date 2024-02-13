@@ -18,7 +18,6 @@ module.exports = NodeHelper.create({
         if (notification === "SAVE_PATIENT_MEDICATION") {
             // Handle saving medication to patient-medications table
             this.saveToPatientMedicationsTable(payload.ndc, payload.box, payload.quantity, payload.medicationData);
-
         }
     },
 
@@ -28,6 +27,7 @@ module.exports = NodeHelper.create({
 
         db.run(`CREATE TABLE IF NOT EXISTS patient_medications (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
+            medication_id TEXT,
             ndc TEXT,
             box TEXT,
             quantity INTEGER,
@@ -36,23 +36,15 @@ module.exports = NodeHelper.create({
         )`);
 
         // Insert medication details into patient-medications table
-        medicationData.forEach(med => {
+        localMedicationData.forEach(med => {
             db.run(
-                "INSERT INTO patient_medications (ndc, box, quantity, brand_name, generic_name) VALUES (?, ?, ?, ?, ?)",
-                [med.product_ndc, box, quantity, med.brand_name, med.generic_name],
+                "INSERT INTO patient_medications (medication_id, ndc, box, quantity, brand_name, generic_name) VALUES (?, ?, ?, ?, ?, ?)",
+                [med.id, ndc, box, quantity, med.brand_name, med.generic_name], 
                 (err) => {
                     if (err) {
                         console.error("Error inserting patient medication:", err);
                     } else {
-                        console.log(`Patient medication for ${med.product_ndc} in ${box} with quantity ${quantity} inserted successfully`);
-                        // Send notification to the cloud module
-                        this.sendSocketNotification("CLOUD_UPDATE_MEDICATIONS", {
-                            ndc: med.product_ndc,
-                            box: box,
-                            quantity: quantity,
-                            brand_name: med.brand_name,
-                            generic_name: med.generic_name
-                        });
+                        console.log(`Patient medication for ${med.ndc} in ${box} with quantity ${quantity} inserted successfully`);
                     }
                 }
             );
@@ -60,5 +52,13 @@ module.exports = NodeHelper.create({
 
         // Close the database connection
         db.close();
+
+        // Send notification to the cloud module
+        this.sendSocketNotification("CLOUD_UPDATE_MEDICATIONS", {
+            ndc: ndc,
+            box: box,
+            quantity: quantity,
+            medicationData: medicationData
+        });
     },
 });
