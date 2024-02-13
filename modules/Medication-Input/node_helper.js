@@ -19,15 +19,38 @@ module.exports = NodeHelper.create({
             // Handle saving medication to patient-medications table
             this.saveToPatientMedicationsTable(payload.ndc, payload.box, payload.quantity, payload.medicationData);
         }
+
+        else if (notification === "CLOUD_SEARCH_MEDICATIONS_RESULT") {
+            // Handle searching for medication in the cloud using the searchTerm
+            const searchTerm = payload.searchTerm;
+            sendSocketNotification("MEDICATION_DATA_FOUND")
+            console.log("Searching for medication using searchTerm:", searchTerm);
+        }
     },
 
-    saveToPatientMedicationsTable: function (ndc, box, quantity, medicationData) {
+    saveToPatientMedicationsTable: function (id, ndc, box, quantity, medicationData) {
+        // Build the medications array
+        const medications = [{
+            medication_id: medicationData.id,
+            box: box,
+            quantity: quantity
+        }];
+
+        // Build the payload
+        const payload = {
+            patient_id: "b6673aee-c9d8-11ee-8491-029e9cf81533", // Replace with actual patient_id
+            cabinet_id: "b45569c2-c9d9-11ee-8491-029e9cf81533", // Replace with actual cabinet_id
+            medications: medications
+        };
+
+        // Send notification to the cloud module
+        this.sendSocketNotification("CLOUD_UPDATE_MEDICATIONS", payload);
+
         // Connect to SQLite database
         const db = new sqlite3.Database("modules/Medication-Management/medications.db");
 
         db.run(`CREATE TABLE IF NOT EXISTS patient_medications (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            medication_id TEXT,
+            id TEXT,
             ndc TEXT,
             box TEXT,
             quantity INTEGER,
@@ -36,10 +59,10 @@ module.exports = NodeHelper.create({
         )`);
 
         // Insert medication details into patient-medications table
-        localMedicationData.forEach(med => {
+        medicationData.forEach(med => {
             db.run(
-                "INSERT INTO patient_medications (medication_id, ndc, box, quantity, brand_name, generic_name) VALUES (?, ?, ?, ?, ?, ?)",
-                [med.id, ndc, box, quantity, med.brand_name, med.generic_name], 
+                "INSERT INTO patient_medications (id, ndc, box, quantity, brand_name, generic_name) VALUES (?, ?, ?, ?, ?, ?)",
+                [med.id, med.ndc, box, quantity, med.brand_name, med.generic_name],
                 (err) => {
                     if (err) {
                         console.error("Error inserting patient medication:", err);
@@ -52,13 +75,5 @@ module.exports = NodeHelper.create({
 
         // Close the database connection
         db.close();
-
-        // Send notification to the cloud module
-        this.sendSocketNotification("CLOUD_UPDATE_MEDICATIONS", {
-            ndc: ndc,
-            box: box,
-            quantity: quantity,
-            medicationData: medicationData
-        });
     },
 });

@@ -14,18 +14,11 @@ Module.register("Medication-Input", {
     },
 
     socketNotificationReceived: function (notification, payload) {
-        if (notification === "CLOUD_SEARCH_MEDICATIONS_RESULT") {
-            const medicationData = payload.medicationData;
-
-            this.sendSocketNotification("SAVE_PATIENT_MEDICATION", {
-                ndc: payload.ndc,
-                box: payload.box,
-                quantity: payload.quantity,
-                medicationData: medicationData
-            });
+        if (notification === "MEDICATION_DATA_FOUND") {
+            this.medicationData = payload.medicationData;
+            this.updateDom();
         }
     },
-
 
     getStyles: function () {
         return ["medication-scheduler.css"];
@@ -51,10 +44,9 @@ Module.register("Medication-Input", {
                 const searchTerm = event.target.value.trim();
                 if (searchTerm.length > 0) {
                     // If the input is not empty, send a socket notification to start medication search
-                    this.sendSocketNotification("CLOUD_SEARCH_MEDICATIONS", { searchTerm });
+                    this.sendNotification("CLOUD_SEARCH_MEDICATIONS", { searchTerm });
                 }
             });
-
 
             medicationContainer.appendChild(ndcInput);
 
@@ -88,7 +80,7 @@ Module.register("Medication-Input", {
                 const quantityValue = Math.max(1, +quantityInput.value); // Ensure quantity is at least 1
 
                 // Save to patient-medications table
-                this.sendSocketNotification("SAVE_PATIENT_MEDICATION", { ndc: ndcValue, box: boxValue, quantity: quantityValue });
+                this.sendSocketNotification("SAVE_PATIENT_MEDICATION", { ndc: ndcValue, box: boxValue, quantity: quantityValue, medicationData: this.medicationData });
             });
             medicationContainer.appendChild(scheduleButton);
 

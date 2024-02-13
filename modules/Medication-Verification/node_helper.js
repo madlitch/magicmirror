@@ -66,6 +66,7 @@ module.exports = NodeHelper.create({
         console.log("start_time:", formattedStartTime);
         console.log("end_time:", formattedEndTime);
         console.log("total_time:", elapsedTime);
+        
 
         // End the Python script execution
         this.pythonShell.end((err) => {
