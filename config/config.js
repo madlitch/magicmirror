@@ -137,13 +137,12 @@ let config = {
                 timeout: 1000
             }
         },
-        {
-            module: "pillbox",
-            position: "bottom_bar",
-            config: {
-                // See below for configurable options
-            }
-        },
+        // {
+        //     module: "gpio",
+        //     config: {
+        //         mock: false
+        //     }
+        // },
         {
             module: "MMM-TouchButton",
             position: "bottom center",

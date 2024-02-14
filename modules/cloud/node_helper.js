@@ -9,10 +9,10 @@ const cabinet_id = "b45569c2-c9d9-11ee-8491-029e9cf81533";
 module.exports = NodeHelper.create({
 
     start: function () {
-        axios.post(`${cloud_url}/api/test`, {
-            message: "Testing Connection"
-        }).then(r => {
-            console.log("Cloud Connection Successful");
+        axios.get(`${cloud_url}/test`).then(r => {
+            if (r.data === {message: 'pass!'}) {
+                console.log("Cloud Connection Successful");
+            }
         }).catch(function (error) {
             console.log("Connection to server failed");
             console.log(error.cause);
