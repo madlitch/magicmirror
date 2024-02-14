@@ -1,0 +1,9 @@
+{
+  "name": "Medication-Alarm",
+  "version": "1.0.0",
+  "description": "Todo: Insert description here!",
+  "main": "Medication-Alarm.js",
+  "author": "Lyba Mughees",
+  "license": "MIT",
+  "devDependencies": {}
+}
