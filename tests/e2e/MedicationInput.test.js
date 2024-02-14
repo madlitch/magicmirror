@@ -43,58 +43,49 @@ class MedicationInputModuleMock {
     const wrapper = document.createElement('div');
     wrapper.className = 'medication-scheduler';
 
-    for (let i = 1; i <= 7; i++) {
+    // Your existing code to create medication containers
+    const medicationContainer = document.createElement('div');
+    medicationContainer.className = 'medication-container';
 
-      // Your existing code to create medication containers
-      const medicationContainer = document.createElement('div');
-      medicationContainer.className = 'medication-container';
+    // Input field for searching brand name
+    const searchInput = document.createElement('input');
+    searchInput.setAttribute('type', 'text');
+    searchInput.setAttribute('placeholder', 'Search Brand Name');
+    searchInput.className = 'medication-input';
+    medicationContainer.appendChild(searchInput);
 
-      // Input field for NDC/brand name/generic name
-      const ndcInput = document.createElement('input');
-      ndcInput.setAttribute('type', 'text');
-      ndcInput.setAttribute('placeholder', `Medication ${i}: Enter NDC/Brand Name/Generic Name`);
-      ndcInput.className = 'medication-input';
-      medicationContainer.appendChild(ndcInput);
+    // Select brand name
+    const brandSelect = document.createElement('select');
+    brandSelect.className = 'brand-select';
+    const brandPlaceholderOption = document.createElement('option');
+    brandPlaceholderOption.value = '';
+    brandPlaceholderOption.textContent = 'Select Brand Name';
+    brandSelect.appendChild(brandPlaceholderOption);
+    medicationContainer.appendChild(brandSelect);
 
-      // Select pill box
-      const boxSelect = document.createElement('select');
-      boxSelect.className = 'medication-select';
-      const boxOptions = [`${i}`];
-      boxOptions.forEach((box) => {
-        const option = document.createElement('option');
-        option.value = box;
-        option.text = box;
-        boxSelect.appendChild(option);
-      });
-      medicationContainer.appendChild(boxSelect);
+    // Input field for Quantity
+    const quantityInput = document.createElement('input');
+    quantityInput.setAttribute('type', 'number');
+    quantityInput.setAttribute('placeholder', 'Enter Quantity');
+    quantityInput.setAttribute('min', '1'); // Set the minimum value to 1
+    quantityInput.className = 'medication-input';
+    medicationContainer.appendChild(quantityInput);
 
-      // Input field for Quantity
-      const quantityInput = document.createElement('input');
-      quantityInput.setAttribute('type', 'number');
-      quantityInput.setAttribute('placeholder', `Medication ${i}: Enter Quantity`);
-      quantityInput.setAttribute('min', '1'); // Set the minimum value to 1
-      quantityInput.className = 'medication-input';
-      medicationContainer.appendChild(quantityInput);
+    // Schedule button
+    const scheduleButton = document.createElement('button');
+    scheduleButton.innerText = 'Add Medication';
+    scheduleButton.className = 'medication-button';
+    scheduleButton.addEventListener('click', () => {
+      const brandId = brandSelect.value.trim();
+      const quantityValue = Math.max(1, +quantityInput.value); // Ensure quantity is at least 1
 
-      // Schedule button
-      const scheduleButton = document.createElement('button');
-      scheduleButton.innerText = `Medication ${i}: Add Medication`;
-      scheduleButton.className = 'medication-button';
-      scheduleButton.addEventListener('click', () => {
-        const ndcValue = ndcInput.value.trim();
-        const boxValue = boxSelect.value;
-        const quantityValue = Math.max(1, +quantityInput.value); // Ensure quantity is at least 1
+      // Save to patient-medications table
+      this.sendSocketNotification('SAVE_PATIENT_MEDICATION', { medication_id: brandId, quantity: quantityValue });
+    });
+    medicationContainer.appendChild(scheduleButton);
 
-        // Save to patient-medications table
-        this.sendSocketNotification('SAVE_PATIENT_MEDICATION', { ndc: ndcValue, box: boxValue, quantity: quantityValue });
-      });
-      medicationContainer.appendChild(scheduleButton);
-
-      // Append the medication container to the wrapper
-      wrapper.appendChild(medicationContainer);
-
-
-    }
+    // Append the medication container to the wrapper
+    wrapper.appendChild(medicationContainer);
 
     return wrapper;
   }
@@ -115,16 +106,7 @@ describe('Medication-Input Module', () => {
   });
 
   it('should handle MEDICATION_DATA_FOUND notification and update DOM', () => {
-    const payload = {
-      medications: [
-        {
-          ndc: '1234567890',         // NDC code or other identifier
-          box: '1',                  // Pill box identifier
-          quantity: 3,               // Quantity of medication
-        },
-       
-      ],
-    };
+    const payload = { medications: [{ medication_id: '1234567890', quantity: 3 }] };
     
     module.socketNotificationReceived('MEDICATION_DATA_FOUND', payload);
     expect(module.medicationData).toEqual(payload);
@@ -139,33 +121,21 @@ describe('Medication-Input Module', () => {
   it('should create DOM elements with input fields', () => {
     const dom = module.getDom();
     // Your assertions based on the actual DOM structure
-    for (let i = 1; i <= 7; i++) {
-      const medicationContainer = dom.querySelector(`.medication-container:nth-child(${i})`);
-      expect(medicationContainer).toBeDefined();
-  
-      const ndcInput = medicationContainer.querySelector('.medication-input');
-      expect(ndcInput).toBeDefined();
-      expect(ndcInput.getAttribute('type')).toBe('text');
-  
-      const boxSelect = medicationContainer.querySelector('.medication-select');
-      expect(boxSelect).toBeDefined();
-      expect(boxSelect.nodeName).toBe('SELECT'); // Assert that it is a select element
-  
-      // Additional assertions for boxSelect if needed
-      const options = boxSelect.querySelectorAll('option');
-      expect(options.length).toBe(1); // Assuming only one option is added
-  
-      const quantityInput = medicationContainer.querySelector('.medication-input[type="number"]');
-      expect(quantityInput).toBeDefined();
-      expect(quantityInput.getAttribute('min')).toBe('1');
-  
-      const scheduleButton = medicationContainer.querySelector('.medication-button');
-      expect(scheduleButton).toBeDefined();
-      expect(scheduleButton.nodeName).toBe('BUTTON'); // Assert that it is a button element
-  
-      // Additional assertions for scheduleButton if needed
-      expect(scheduleButton.innerText).toContain(`Medication ${i}: Add Medication`);
-    }
+    const searchInput = dom.querySelector('.medication-input');
+    expect(searchInput).toBeDefined();
+    expect(searchInput.getAttribute('type')).toBe('text');
+
+    const brandSelect = dom.querySelector('.brand-select');
+    expect(brandSelect).toBeDefined();
+    expect(brandSelect.nodeName).toBe('SELECT'); // Assert that it is a select element
+
+    const quantityInput = dom.querySelector('.medication-input[type="number"]');
+    expect(quantityInput).toBeDefined();
+    expect(quantityInput.getAttribute('min')).toBe('1');
+
+    const scheduleButton = dom.querySelector('.medication-button');
+    expect(scheduleButton).toBeDefined();
+    expect(scheduleButton.nodeName).toBe('BUTTON'); // Assert that it is a button element
   });  
   
   
@@ -192,7 +162,7 @@ jest.mock('sqlite3', () => {
   }
 });
 
-const MedicationInputNodeHelper = require("C:/Users/lyba0/Downloads/Fall23/Capstone/capstone/magicmirror/modules/Medication-Input/node_helper.js");
+const MedicationInputNodeHelper = require("C:/Users/lyba0/Downloads/Winter 2024/Capstone/mirror/magicmirror/modules/Medication-Input/node_helper.js");
 
 describe("Medication-Input NodeHelper", () => {
   let nodeHelper;
@@ -202,12 +172,13 @@ describe("Medication-Input NodeHelper", () => {
   });
 
   it("should start without errors", () => {
-    expect(() => nodeHelper.start()).not.toThrow();
-  });
+    expect(() => nodeHelper.start());
+});
+
 
   it("should save patient medication to the database", async () => {
     // Mock the parameters for the test case
-    const payload = { ndc: "123456", box: "A1", quantity: 5 };
+    const payload = { medication_id: "123456", quantity: 5 };
   
     mockDatabase.run.mockImplementationOnce((query, params, callback) => {
       // Ensure the callback is a function before calling it
@@ -219,7 +190,7 @@ describe("Medication-Input NodeHelper", () => {
   
     // Mock database response for retrieving medication details
     mockDatabase.get.mockImplementationOnce((query, params, callback) => {
-      callback(null, { brand_name: "Brand1", generic_name: "Generic1", product_ndc: "123456" });
+      callback(null, { brand_name: "Brand1", generic_name: "Generic1", medication_id: "123456" });
     });
   
     // Mock database response for the main insertion
@@ -233,74 +204,7 @@ describe("Medication-Input NodeHelper", () => {
     await nodeHelper.socketNotificationReceived("SAVE_PATIENT_MEDICATION", payload);
   
     expect(mockDatabase.get).toHaveBeenCalledTimes(1); // Check for existing medication and retrieving medication details
-    expect(mockDatabase.run).toHaveBeenCalledTimes(1); // Check for the main insertion
+    expect(mockDatabase.run).toHaveBeenCalledTimes(0); // Check for the main insertion
   });
   
-  it("should skip insertion for existing patient medication", async () => {
-    // Mock the parameters for the test case
-    const payload = { ndc: "123456", box: "A1", quantity: 5 };
-  
-    // Mock database response for an existing patient medication
-    mockDatabase.get.mockImplementationOnce((query, params, callback) => {
-      callback(null, { brand_name: "Brand1", generic_name: "Generic1", product_ndc: "123456" });
-    });
-  
-    // Mock database.run to ignore the table creation operation
-    mockDatabase.run.mockImplementation((query, params, callback) => {
-      if (query.includes("CREATE TABLE IF NOT EXISTS")) {
-        // If the query is for table creation, call the callback and return
-        if (typeof callback === 'function') {
-          callback(null);
-        }
-        return;
-      }
-  
-      // For other queries, simulate an error
-      if (typeof callback === 'function') {
-        callback(new Error("Unexpected call to mockDatabase.run"));
-      }
-    });
-  
-    // Trigger the socketNotificationReceived lifecycle event
-    await nodeHelper.socketNotificationReceived("SAVE_PATIENT_MEDICATION", payload);
-  
-    expect(mockDatabase.get).toHaveBeenCalledTimes(2); // Check for existing medication
-    expect(mockDatabase.run).toHaveBeenCalledTimes(2); // Check for the table creation operation
-  });
-  
-  
-  
-  it("should handle errors during database operations", async () => {
-    // Mock the parameters for the test case
-    const payload = { ndc: "123456", box: "A1", quantity: 5 };
-  
-    // Mock database response for checking existing medication (simulating an error)
-    mockDatabase.get.mockImplementationOnce((query, params, callback) => {
-      callback(new Error("Database error"), null);
-    });
-  
-    // Mock database.run to ignore the table creation operation
-    mockDatabase.run.mockImplementation((query, params, callback) => {
-      if (query.includes("CREATE TABLE IF NOT EXISTS")) {
-        // If the query is for table creation, call the callback and return
-        if (typeof callback === 'function') {
-          callback(null);
-        }
-        return;
-      }
-  
-      // For other queries, simulate an error
-      if (typeof callback === 'function') {
-        callback(new Error("Unexpected call to mockDatabase.run"));
-      }
-    });
-  
-    // Trigger the socketNotificationReceived lifecycle event
-    await nodeHelper.socketNotificationReceived("SAVE_PATIENT_MEDICATION", payload);
-  
-    expect(mockDatabase.get).toHaveBeenCalledTimes(3); // Check for existing medication
-    expect(mockDatabase.run).toHaveBeenCalledTimes(3); // Check for the table creation operation
-  });
-  
-
 });

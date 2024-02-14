@@ -18,14 +18,6 @@ module.exports = NodeHelper.create({
     this.scheduleMedicationCheck();
   },
 
-  socketNotificationReceived: function (notification, payload) {
-    if (notification === "MEDICATION_ALARM_TEST") {
-      // Send a test notification to the Medication-Alarm module
-      this.sendSocketNotification(notification, payload);
-    }
-
-
-  },
 
   convertDayToNumber: function (dayName) {
     // Map day names to numerical values used by node-schedule
@@ -58,14 +50,16 @@ module.exports = NodeHelper.create({
     // Perform database query to retrieve medications for the current day and time
     const currentDate = new Date();
     const currentDay = currentDate.toLocaleDateString('en-US', { weekday: 'long' });
-    const currentTime = currentDate.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+    const currentTime = currentDate.getHours().toString().padStart(2, '0') + ':' + currentDate.getMinutes().toString().padStart(2, '0');
+
+
 
     console.log("Current Date:", currentDay);
     console.log("Current Time:", currentTime);
 
-    // Replace this with your actual database query logic
+
     const medicationsForCurrentTimeQuery = `
-        SELECT ndc, brand_name, generic_name, day, time
+        SELECT medication_id, brand_name, generic_name, day, time
         FROM medication_schedule
         WHERE time = ?
     `;
@@ -92,22 +86,17 @@ module.exports = NodeHelper.create({
 
       // Trigger notifications for each matching medication
       matchingMedications.forEach((medication) => {
-        const { brand_name, generic_name, ndc, time } = medication;
+        const { brand_name, generic_name, medication_id, time } = medication;
 
         // Log the payload before sending the notification
         console.log("Sending MEDICATION_ALARM_TEST notification with payload:", {
           title: 'Medication Notification',
-          message: `It's time to take ${brand_name || generic_name} at ${time}`,
+          message: `It's time to take ${brand_name || generic_name || medication_id} at ${time}`,
         });
 
-        // Send MEDICATION_ALARM_TEST notification to the Medication-Alarm module
-        this.sendSocketNotification("MEDICATION_ALARM_TEST", {
-          title: 'Medication Notification',
-          message: `It's time to take ${brand_name || generic_name} at ${time}`,
-        });
 
         // Trigger medication notification and alarm
-        this.triggerMedicationNotification(brand_name, generic_name, ndc, time);
+        this.triggerMedicationNotification(brand_name, generic_name, medication_id, time);
       });
     });
 
@@ -115,10 +104,24 @@ module.exports = NodeHelper.create({
     db.close();
   },
 
-  // Define the triggerMedicationNotification function
-  triggerMedicationNotification: function (brandName, genericName, ndc, time) {
-    // Implement your logic to trigger the medication notification here
-    console.log("Triggering medication notification for:", brandName, genericName, ndc, time);
+
+  triggerMedicationNotification: function (brandName, genericName, medication_id, time) {
+    // Log the payload before sending the notification
+    console.log("Sending MEDICATION_ALARM_TEST notification with payload:", {
+      title: 'Medication Notification',
+      message: `It's time to take ${brandName || genericName} at ${time}`,
+      medication_id: medication_id, // Include medication ID in the payload
+      time: new Date().toString() // Include current time in the payload
+    });
+
+    // Send MEDICATION_ALARM_TEST notification to the Medication-Alarm module
+    this.sendSocketNotification("MEDICATION_ALARM_TEST", {
+      title: 'Medication Notification',
+      message: `It's time to take ${brandName || genericName} at ${time}`,
+      medication_id: medication_id, // Include medication ID in the payload
+      time: new Date().toString() // Include current time in the payload
+    });
   },
+
 
 });

@@ -13,6 +13,7 @@ module.exports = NodeHelper.create({
         console.log("Medication-Input helper started...");
         this.sendSocketNotification("MEDICATION_INTAKE_STARTED");
         
+        
     },
 
     socketNotificationReceived: function (notification, payload) {

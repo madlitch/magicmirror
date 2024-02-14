@@ -39,20 +39,8 @@ class MedicationSchedulerModuleMock {
 
     return {
       appendChild: jest.fn(),
-      createTextNode: jest.fn(),
-      setAttribute: jest.fn(),
-      addEventListener: jest.fn(),
-      querySelector: jest.fn((selector) => {
-        if (selector === '.medication-scheduler') {
-          return document.createElement('div');
-        } else if (selector === 'input.medication-input') {
-          return document.createElement('input');
-        } else if (selector === 'select.medication-select') {
-          return document.createElement('select');
-        } else if (selector === 'button.medication-button') {
-          return document.createElement('button');
-        }
-      }),
+      createElement: document.createElement.bind(document),
+      querySelector: document.querySelector.bind(document),
     };
   }
 }
@@ -111,17 +99,14 @@ const mockDatabase = {
   get: jest.fn(),
 };
 
-jest.mock('sqlite3', () => {
-  return {
-    verbose: jest.fn(() => {
-      return {
-        Database: jest.fn(() => mockDatabase)
-      }
-    })
-  }
-});
+jest.mock('sqlite3', () => ({
+  verbose: jest.fn(() => ({
+    Database: jest.fn(() => mockDatabase)
+  }))
+}));
 
-const MedicationSchedulerNodeHelper = require("C:/Users/lyba0/Downloads/Fall23/Capstone/capstone/magicmirror/modules/Medication-Scheduler/node_helper.js");
+const MedicationSchedulerNodeHelper = require("C:/Users/lyba0/Downloads/Winter 2024/Capstone/mirror/magicmirror/modules/Medication-Scheduler/node_helper.js");
+
 describe("Medication-Scheduler NodeHelper", () => {
   let nodeHelper;
 
@@ -141,71 +126,45 @@ describe("Medication-Scheduler NodeHelper", () => {
   });
 
   it("should handle SCHEDULE_MEDICATION notification", async () => {
-    const payload = { ndc: "123456", days: ["Monday"], times: ["08:00 AM"] };
-  
+    const payload = { medication_id: "123456", days: ["Monday"], times: ["08:00 AM"] };
   
     mockDatabase.run.mockImplementationOnce((query, params, callback) => {
-      // Ensure the callback is a function before calling it
       if (typeof callback === 'function') {
         callback(null);
       }
     });
     
-  
-    // Mock database response for checking existing schedule
     mockDatabase.get.mockImplementationOnce((query, params, callback) => {
-      callback(null, null); // Simulate that the schedule does not exist
+      callback(null, null);
     });
   
-    // Trigger the socketNotificationReceived lifecycle event
     await nodeHelper.socketNotificationReceived("SCHEDULE_MEDICATION", payload);
   
-    // Expectations
-
-    expect(mockDatabase.get).toHaveBeenCalledTimes(1); // Check for existing medication and retrieving medication details
-    expect(mockDatabase.run).toHaveBeenCalledTimes(0); // Check for the main insertion
-    
+    expect(mockDatabase.get).toHaveBeenCalledTimes(1);
+    expect(mockDatabase.run).toHaveBeenCalledTimes(0);
   });
-  
-
 
   it("should handle DELETE_SCHEDULE notification", async () => {
-    const payload = { ndc: "123456", days: ["Monday"], times: ["08:00 AM"] };
+    const payload = { medication_id: "123456", days: ["Monday"], times: ["08:00 AM"] };
 
-    const mockDatabase = {
-      run: jest.fn(),
-      close: jest.fn(),
-      get: jest.fn(),
-    };
-
-
-    // Mock database response for deleting schedules
     mockDatabase.run.mockImplementationOnce((query, params, callback) => {
-      // Ensure the callback is a function before calling it
       if (typeof callback === 'function') {
         callback(null);
       }
     });
     
-
-    // Trigger the socketNotificationReceived lifecycle event
     await nodeHelper.socketNotificationReceived("DELETE_SCHEDULE", payload);
 
-   
-    expect(mockDatabase.run).toHaveBeenCalledTimes(0); // Check for deleting schedules
+    expect(mockDatabase.run).toHaveBeenCalledTimes(1);
   });
 
   it("should handle MEDICATION_ALARM_TEST notification", async () => {
     const payload = { message: "Test message" };
 
-    // Mock the sendSocketNotification function
     jest.spyOn(nodeHelper, 'sendSocketNotification');
 
-    // Trigger the socketNotificationReceived lifecycle event
     nodeHelper.socketNotificationReceived("MEDICATION_ALARM_TEST", payload);
 
     expect(nodeHelper.sendSocketNotification).toHaveBeenCalledWith("MEDICATION_ALARM_TEST", payload);
-
-    
   });
 });

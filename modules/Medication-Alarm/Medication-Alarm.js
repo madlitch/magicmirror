@@ -20,24 +20,31 @@ Module.register("Medication-Alarm", {
     this.notificationsWrapper = document.createElement("div");
     this.notificationsWrapper.className = "medication-notifications";
     this.sendSocketNotification("MEDICATION_ALARM_TEST");
-    this.notificationReceivedTime = null;
+    this.alarmTime = null;
+    this.medicationId = null; // Initialize medicationId to store the current medication ID
   },
-
+  
   stopAlarm: function () {
-    if (this.notificationReceivedTime) {
-      const stopTime = new Date().getTime();
-      const elapsedTime = (stopTime - this.notificationReceivedTime) / 1000;
-      console.log("Time elapsed (seconds):", elapsedTime);
-      this.notificationReceivedTime = null;
-    }
+
+    const startTime = new Date().getTime();
+    
+        const stopTime = new Date().getTime();
+        const elapsedTime = (stopTime - this.alarmTime) / 1000;
+        console.log("Time elapsed (seconds):", elapsedTime);
+        
+    
     if (this.notificationSound instanceof Audio) {
-      this.alarmActive = false;
-      this.notificationSound.loop = false;
-      this.notificationSound.pause();
+        this.alarmActive = false;
+        this.notificationSound.loop = false;
+        this.notificationSound.pause();
     }
 
-    this.sendNotification("START_MEDICATION_VERIFICATION");
-  },
+  
+      // Pass start time and alarm time to the Medication-Verification module
+      this.sendNotification("START_MEDICATION_VERIFICATION", { medication_id: this.medicationId, startTime: startTime, alarmTime: this.alarmTime });
+      this.alarmTime = null;
+},
+
 
   getStyles: function () {
     return ["Medication-Alarm.css"];
@@ -129,19 +136,29 @@ Module.register("Medication-Alarm", {
   socketNotificationReceived: function (notification, payload) {
     if (notification === "MEDICATION_ALARM_TEST") {
 
-
-
       this.notificationReceivedTime = new Date().getTime(); // Capture the time when notification is received
 
-      // Handle medication notifications received from the helper
-      this.displayMedicationNotification(payload);
-      this.alarmActive = true;
-      this.notificationSound.loop = true;
-      this.notificationSound.play();
+        
+        // Extract medication ID from the payload
+        const medicationId = payload.medication_id;
+        const alarmTime = new Date(payload.time);
 
+        // Log medication ID
+        console.log("Received Medication ID:", medicationId);
+        console.log(("Received Medication ID:", alarmTime));
 
+        // Store the medication ID in the module scope
+        this.medicationId = medicationId;
+        this.alarmTime=alarmTime;
 
-
+        
+        // Handle medication notifications received from the helper
+        this.displayMedicationNotification(payload);
+        this.alarmActive = true;
+        this.notificationSound.loop = true;
+        this.notificationSound.play();
     }
-  },
+},
+
+
 });

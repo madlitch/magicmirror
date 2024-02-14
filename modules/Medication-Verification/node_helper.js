@@ -15,24 +15,29 @@ module.exports = NodeHelper.create({
 
   socketNotificationReceived: function (notification, payload) {
     if (notification === "START_MEDICATION_VERIFICATION") {
+      // Convert start time and alarm time strings to Date objects
+      const startTime = new Date(payload.startTime);
+      const alarmTime = this.formatDateTime(new Date(payload.alarmTime));
+  
       // Start the medication verification process
-      this.startVerification();
+      this.startVerification(payload.medication_id, startTime, alarmTime);
+    }
+    else if (notification === "LOG") {
+      console.log(payload);
     }
   },
+  
 
-  startVerification: function () {
+  startVerification: function (medication_id, startTime, alarmTime) {
     // Start the Python script for medication verification
     const options = {
       pythonOptions: ["-u"],
       scriptPath: "modules/Medication-Verification",
-      args: []
+      args: [medication_id] // Pass medication ID as an argument to the Python script
     };
 
     // Declare pythonShell outside of the startVerification function
     this.pythonShell = new PythonShell("Medication-Verification.py", options);
-
-    // Initialize start time
-    const startTime = new Date();
 
     // Handle messages received from the Python script
     this.pythonShell.on("message", (message) => {
@@ -50,23 +55,21 @@ module.exports = NodeHelper.create({
         // Format end time
         const formattedEndTime = this.formatDateTime(stopTime);
 
-        // Calculate the elapsed time in seconds
-        const elapsedTime = (stopTime - startTime) / 1000;
+        
 
         // Notify the module about the verification result along with stop time
         this.sendSocketNotification("VERIFY_MEDICATION_RESULT", {
+          medication_id: medication_id, // Include medication ID in the payload
           success: true,
           message: "Medication intake verified successfully.",
           startTime: formattedStartTime,
           stopTime: formattedEndTime,
-          elapsedTime: elapsedTime // Pass elapsed time
+          alarmTime: alarmTime
         });
 
         // Output formatted times
         console.log("start_time:", formattedStartTime);
         console.log("end_time:", formattedEndTime);
-        console.log("total_time:", elapsedTime);
-        
 
         // End the Python script execution
         this.pythonShell.end((err) => {
@@ -94,6 +97,4 @@ module.exports = NodeHelper.create({
   padZero: function (num) {
     return (num < 10 ? '0' : '') + num;
   }
-
-
 });

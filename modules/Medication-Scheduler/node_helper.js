@@ -27,6 +27,10 @@ module.exports = NodeHelper.create({
       // Retrieve medication options from the database and send them to the frontend
       this.searchMedication();
     }
+
+    else if (notification === "LOG") {
+      console.log(payload);
+  }
   },
 
   convertDayToNumber: function (dayName) {
@@ -49,25 +53,25 @@ module.exports = NodeHelper.create({
   },
   
 
-  scheduleMedication: function ({ ndc, days, times }) {
+  scheduleMedication: function ({ medication_id, days, times }) {
     // Connect to SQLite database
     const db = new sqlite3.Database("modules/Medication-Management/medications.db");
 
-    // Retrieve brand name, generic name, and NDC from medications table based on the entered NDC (case-insensitive)
+    // Retrieve brand name and generic name from medications table based on the entered medication ID
     db.get(
-      "SELECT brand_name, generic_name, ndc FROM patient_medications WHERE LOWER(ndc) = LOWER(?) OR LOWER(brand_name) = LOWER(?) OR LOWER(generic_name) = LOWER(?)",
-      [ndc, ndc, ndc],
+      "SELECT brand_name, generic_name FROM patient_medications WHERE medication_id = ?",
+      [medication_id],
       (err, row) => {
         if (err) {
           console.error("Error retrieving medication details:", err);
         } else {
           if (row) {
-            const { brand_name, generic_name, ndc } = row;
+            const { brand_name, generic_name } = row;
 
             // Create medication_schedule table if not exists
             db.run(`CREATE TABLE IF NOT EXISTS medication_schedule (
               id INTEGER PRIMARY KEY AUTOINCREMENT,
-              ndc TEXT,
+              medication_id TEXT,
               brand_name TEXT,
               generic_name TEXT,
               day TEXT,
@@ -76,34 +80,34 @@ module.exports = NodeHelper.create({
 
             // Check if the schedule already exists
             const existingScheduleQuery =
-              "SELECT 1 FROM medication_schedule WHERE ndc = ? AND day = ? AND time = ?";
+              "SELECT 1 FROM medication_schedule WHERE medication_id = ? AND day = ? AND time = ?";
             days.forEach((day) => {
               times.forEach((time) => {
-                db.get(existingScheduleQuery, [ndc, day, time], (err, existingRow) => {
+                db.get(existingScheduleQuery, [medication_id, day, time], (err, existingRow) => {
                   if (err) {
                     console.error("Error checking for existing schedule:", err);
                   } else if (!existingRow) {
                     // If schedule does not exist, insert it
                     db.run(
-                      "INSERT INTO medication_schedule (ndc, brand_name, generic_name, day, time) VALUES (?, ?, ?, ?, ?)",
-                      [ndc, brand_name, generic_name, day, time],
+                      "INSERT INTO medication_schedule (medication_id, brand_name, generic_name, day, time) VALUES (?, ?, ?, ?, ?)",
+                      [medication_id, brand_name, generic_name, day, time],
                       (err) => {
                         if (err) {
                           console.error("Error inserting schedule:", err);
                         } else {
-                          console.log(`Schedule for ${ndc} on ${day} at ${time} inserted successfully`);
+                          console.log(`Schedule for medication ${brand_name} on ${day} at ${time} inserted successfully`);
                         }
                       }
                     );
                   } else {
-                    console.log(`Schedule for ${ndc} on ${day} at ${time} already exists`);
+                    console.log(`Schedule for medication ${brand_name} on ${day} at ${time} already exists`);
                   }
                 });
               });
             });
 
           } else {
-            console.error(`No medication found for NDC, brand name, or generic name: ${ndc}`);
+            console.error(`No medication found for ID: ${medication_id}`);
           }
         }
       }
@@ -113,19 +117,19 @@ module.exports = NodeHelper.create({
     db.close();
   },
 
-  deleteSchedule: function ({ ndc, days, times }) {
+  deleteSchedule: function ({ medication_id, days, times }) {
     // Connect to SQLite database
     const db = new sqlite3.Database("modules/Medication-Management/medications.db");
 
-    // Delete schedules for the specified ndc, brand, generic, day, and time
+    // Delete schedules for the specified medication ID, day, and time
     db.run(
-      "DELETE FROM medication_schedule WHERE (LOWER(ndc) = LOWER(?) OR LOWER(brand_name) = LOWER(?) OR LOWER(generic_name) = LOWER(?)) AND day IN (?) AND time IN (?)",
-      [ndc, ndc, ndc, days.join(','), times.join(',')],
+      "DELETE FROM medication_schedule WHERE medication_id = ? AND day IN (?) AND time IN (?)",
+      [medication_id, days.join(','), times.join(',')],
       (err) => {
         if (err) {
           console.error("Error deleting schedules:", err);
         } else {
-          console.log(`Schedules for ${ndc} on ${days} at ${times} deleted successfully`);
+          console.log(`Schedules for medication ${medication_id} on ${days} at ${times} deleted successfully`);
         }
       }
     );

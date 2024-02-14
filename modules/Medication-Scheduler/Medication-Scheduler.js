@@ -1,17 +1,12 @@
-// * Magic Mirror
-//  * Module: Medication-Scheduler
-//  *
-//  * By Lyba Mughees
-//  * MIT Licensed.
-//  */
+/* Magic Mirror
+ * Module: Medication-Scheduler
+ *
+ * By Lyba Mughees
+ * MIT Licensed.
+ */
 
 Module.register("Medication-Scheduler", {
-  defaults: {
-   
-  },
-  defaults: {
-   
-  },
+  defaults: {},
 
   start: function () {
     Log.info("Medication-Scheduler module started...");
@@ -29,6 +24,9 @@ Module.register("Medication-Scheduler", {
     }
   },
 
+  log: function (data) {
+    this.sendSocketNotification("LOG", data);
+  },
   getStyles: function () {
     return ["medication-scheduler.css"];
   },
@@ -37,12 +35,18 @@ Module.register("Medication-Scheduler", {
     const wrapper = document.createElement("div");
     wrapper.className = "medication-scheduler";
 
+    // Select medication ID input field
+    const medicationIdInput = document.createElement("input");
+    medicationIdInput.type = "hidden"; // Hide the input field
+    medicationIdInput.id = "medication-id-input"; // Set an ID for easy selection if needed
+    wrapper.appendChild(medicationIdInput);
+
     // Select medication dropdown list
     const medicationDropdown = document.createElement("select");
     medicationDropdown.className = "medication-select";
     medicationDropdown.addEventListener("change", () => {
-      // Set the value of the NDC input field to the selected medication's NDC
-      ndcInput.value = medicationDropdown.value;
+      // Set the value of the medication ID input field to the selected medication's ID
+      medicationIdInput.value = medicationDropdown.value;
     });
     wrapper.appendChild(medicationDropdown);
 
@@ -82,14 +86,35 @@ Module.register("Medication-Scheduler", {
     scheduleButton.innerText = "Schedule Medication";
     scheduleButton.className = "medication-button";
     scheduleButton.addEventListener("click", () => {
-      const ndcValue = medicationDropdown.value.trim(); // Get the selected medication's NDC
+      const medicationIdValue = medicationDropdown.value.trim(); // Get the selected medication's ID
       const selectedDays = Array.from(daysSelect.selectedOptions).map((option) => option.value);
       const selectedTimes = Array.from(timesSelect.selectedOptions).map((option) => option.value);
 
-      this.sendSocketNotification("SCHEDULE_MEDICATION", { ndc: ndcValue, days: selectedDays, times: selectedTimes });
 
-      
+      this.sendSocketNotification("SCHEDULE_MEDICATION", { medication_id: medicationIdValue, days: selectedDays, times: selectedTimes });
+      //Prepare medication data objects for each day-time combination
+      const medicationData = [];
+      selectedDays.forEach(day => {
+        selectedTimes.forEach(time => {
+          medicationData.push({
+            medication_id: medicationIdValue,
+            day: this.convertDayToNumber(day), // Convert day to number (0 for Sunday, 1 for Monday, etc.)
+            time: time
+          });
+        });
+      });
+
+      // Send schedule data to the cloud
+      this.sendNotification("CLOUD_PUSH_SCHEDULE", {
+        patient_id: "b6673aee-c9d8-11ee-8491-029e9cf81533",
+        cabinet_id: "b45569c2-c9d9-11ee-8491-029e9cf81533",
+        medications: medicationData
+      });
+      this.log(medicationData);
+
+
     });
+
     wrapper.appendChild(scheduleButton);
 
     // Delete schedule button
@@ -97,12 +122,10 @@ Module.register("Medication-Scheduler", {
     deleteButton.innerText = "Delete Schedule";
     deleteButton.className = "medication-button";
     deleteButton.addEventListener("click", () => {
-      const ndcValue = medicationDropdown.value.trim(); // Get the selected medication's NDC
+      const medicationIdValue = medicationDropdown.value.trim(); // Get the selected medication's ID
       const selectedDays = Array.from(daysSelect.selectedOptions).map((option) => option.value);
       const selectedTimes = Array.from(timesSelect.selectedOptions).map((option) => option.value);
-      this.sendSocketNotification("DELETE_SCHEDULE", { ndc: ndcValue, days: selectedDays, times: selectedTimes });
-
-      
+      this.sendSocketNotification("DELETE_SCHEDULE", { medication_id: medicationIdValue, days: selectedDays, times: selectedTimes });
     });
     wrapper.appendChild(deleteButton);
 
@@ -113,9 +136,23 @@ Module.register("Medication-Scheduler", {
     const medicationDropdown = document.querySelector(".medication-select");
     medications.forEach(medication => {
       const option = document.createElement("option");
-      option.value = medication.ndc;
+      option.value = medication.medication_id;
       option.text = `${medication.brand_name} (${medication.generic_name})`;
       medicationDropdown.appendChild(option);
     });
+  },
+
+  // Helper function to convert day name to number (0 for Sunday, 1 for Monday, etc.)
+  convertDayToNumber: function (dayName) {
+    const dayMap = {
+      'Sunday': 0,
+      'Monday': 1,
+      'Tuesday': 2,
+      'Wednesday': 3,
+      'Thursday': 4,
+      'Friday': 5,
+      'Saturday': 6,
+    };
+    return dayMap[dayName];
   }
 });
