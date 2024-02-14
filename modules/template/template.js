@@ -13,8 +13,6 @@
 Module.register("template", {
   defaults: {},
 
-  requiresVersion: "2.1.0", // Required version of MagicMirror
-
   start: function () {},
 
   log: function (data) {

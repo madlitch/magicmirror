@@ -6,7 +6,7 @@
  */
 
 const NodeHelper = require("node_helper");
-const gpio = require("rpi-gpio");
+const gpio = require("../../node_modules/rpi-gpio");
 
 class GPIOPin {
 	constructor(pinID, HWPin) {
@@ -46,17 +46,18 @@ let pins = [];
 
 module.exports = NodeHelper.create({
 
+	start: function () {
+		pins.push(new GPIOPin(0, 16)); //GPIO 23
+		pins.push(new GPIOPin(1, 11)); //GPIO 17
+		pins.push(new GPIOPin(2, 13)); //GPIO 27
+		pins.push(new GPIOPin(3, 15)); //GPIO 22
+		pins.push(new GPIOPin(4, 29)); //GPIO 5
+		pins.push(new GPIOPin(5, 31)); //GPIO 6
+		pins.push(new GPIOPin(6, 36)); //GPIO 16
+		pins.push(new GPIOPin(7, 37)); //GP
+	},
+
 	socketNotificationReceived: function(notification, payload) {
-		if (notification === this.name + "SETUP") {
-			pins.push(new GPIOPin(0, 16)); //GPIO 23
-			pins.push(new GPIOPin(1, 11)); //GPIO 17
-			pins.push(new GPIOPin(2, 13)); //GPIO 27
-			pins.push(new GPIOPin(3, 15)); //GPIO 22
-			pins.push(new GPIOPin(4, 29)); //GPIO 5
-			pins.push(new GPIOPin(5, 31)); //GPIO 6
-			pins.push(new GPIOPin(6, 36)); //GPIO 16
-			pins.push(new GPIOPin(7, 37)); //GPIO 26
-		}
 
 		if (notification === this.name + "PIN_WRITE") {
 			pins[payload.pin].write(payload.state, (pl) => {
