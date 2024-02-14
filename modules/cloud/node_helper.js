@@ -3,6 +3,9 @@ const axios = require('axios');
 
 const cloud_url = "http://0.0.0.0:8081";
 
+const patient_id = "b6673aee-c9d8-11ee-8491-029e9cf81533";
+const cabinet_id = "b45569c2-c9d9-11ee-8491-029e9cf81533";
+
 module.exports = NodeHelper.create({
 
     start: function () {
