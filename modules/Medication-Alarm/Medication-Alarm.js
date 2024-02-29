@@ -13,6 +13,13 @@
 /* global Module, Log */
 
 Module.register("Medication-Alarm", {
+  notificationSound: null,
+  alarmActive: false,
+  notificationsWrapper: null,
+  alarmTime: null,
+  medicationId: null,
+  medicationQueue: [], // Initialize an empty array to store medication IDs
+
   start: function () {
     console.log("Medication-Alarm module started...");
     this.notificationSound = new Audio("modules/Medication-Alarm/time_to_take_your_pill.mp3");
@@ -21,17 +28,15 @@ Module.register("Medication-Alarm", {
     this.notificationsWrapper.className = "medication-notifications";
     this.sendSocketNotification("MEDICATION_ALARM_TEST");
     this.alarmTime = null;
-    this.medicationId = null; // Initialize medicationId to store the current medication ID
+    this.medicationId = null;
   },
 
   stopAlarm: function () {
-
     const startTime = new Date().getTime();
 
     const stopTime = new Date().getTime();
     const elapsedTime = (stopTime - this.alarmTime) / 1000;
     console.log("Time elapsed (seconds):", elapsedTime);
-
 
     if (this.notificationSound instanceof Audio) {
       this.alarmActive = false;
@@ -39,19 +44,19 @@ Module.register("Medication-Alarm", {
       this.notificationSound.pause();
     }
 
+    // Start the verification process for the first medication in the queue
+    const medicationId = this.medicationQueue.shift(); // Remove and get the first element from the queue
+    if (medicationId) {
+      this.sendNotification("START_MEDICATION_VERIFICATION", { medication_id: medicationId, startTime: startTime, alarmTime: this.alarmTime });
+    }
 
-    // Pass start time and alarm time to the Medication-Verification module
-    this.sendNotification("START_MEDICATION_VERIFICATION", { medication_id: this.medicationId, startTime: startTime, alarmTime: this.alarmTime });
-    this.alarmTime = null;
     this.updateDom();
   },
-
 
   getStyles: function () {
     return ["Medication-Alarm.css"];
   },
 
-  // Function to create a notification element
   createNotificationElement: function (title, message) {
     const notificationWrapper = document.createElement("div");
     notificationWrapper.className = "medication-notification";
@@ -83,92 +88,77 @@ Module.register("Medication-Alarm", {
 
     if (module) {
       if (show) {
-        module.show(1000, function () {
-          // Optional callback function after the module is shown
-        });
+        module.show(1000, function () { });
       } else {
-        module.hide(1000, function () {
-          // Optional callback function after the module is hidden
-        });
+        module.hide(1000, function () { });
       }
     }
   },
 
-  // startAlarm: function () {
-  //   // Play the sound effect continuously
-  //   if (this.notificationSound instanceof Audio) {
-  //     this.alarmActive = true;
-  //     this.notificationSound.loop = true;
-  //     this.notificationSound.play();
-  //   }
-  // },
-
-
   getDom: function () {
     const wrapper = document.createElement("div");
 
-    // Check if the alarm is active before displaying the stop button
     if (this.alarmActive) {
-      // Create a button element to stop the alarm
       const stopButton = document.createElement("button");
       stopButton.innerHTML = "Stop I Am Taking My Pill!!";
       stopButton.addEventListener("click", () => {
-        // Remove all child elements (notifications) from the notifications wrapper
         while (this.notificationsWrapper.firstChild) {
           this.notificationsWrapper.removeChild(this.notificationsWrapper.firstChild);
         }
 
-        // Stop the alarm
         this.stopAlarm();
 
-        // Show all hidden modules
         MM.getModules().enumerate((module) => {
           module.show(1000);
         });
       });
 
-      // Append the stop button to the main wrapper
       wrapper.appendChild(stopButton);
     }
 
-    // Append the notifications wrapper to the main wrapper
     wrapper.appendChild(this.notificationsWrapper);
 
     return wrapper;
   },
 
-
-
-
   socketNotificationReceived: function (notification, payload) {
     if (notification === "MEDICATION_ALARM_TEST") {
+      this.notificationReceivedTime = new Date().getTime();
 
-      this.notificationReceivedTime = new Date().getTime(); // Capture the time when notification is received
-
-
-      // Extract medication ID from the payload
       const medicationId = payload.medication_id;
       const alarmTime = new Date(payload.time);
 
-      // Log medication ID
       console.log("Received Medication ID:", medicationId);
-      console.log(("Received Medication ID:", alarmTime));
+      console.log("Received Alarm Time:", alarmTime);
 
-      // Store the medication ID in the module scope
-      this.medicationId = medicationId;
-      this.alarmTime = alarmTime;
+      // Push the received medication ID into the queue
+      this.medicationQueue.push(medicationId);
 
+      // Log the current medication queue
+      console.log("Medication Queue:", this.medicationQueue);
 
-      // Handle medication notifications received from the helper
+      // Display the medication notification and start the alarm
       this.displayMedicationNotification(payload);
       this.alarmActive = true;
       console.log("Alarm Active:", this.alarmActive);
       this.notificationSound.loop = true;
       this.notificationSound.play();
-      // Re-render the module DOM to display the stop button
+      this.alarmTime = alarmTime; // Set the alarmTime property to the received alarmTime
       this.updateDom();
     }
-  },
+  
+},
 
+notificationReceived: function (notification, payload) {
+  if (notification === "VERIFICATION_COMPLETE") {
+    // Handle verification complete notification
+    // Start verification for the next medication in the queue
+    const medicationId = this.medicationQueue.shift(); // Remove and get the first element from the queue
+    if (medicationId) {
+      const startTime = new Date().getTime();
+      this.sendNotification("START_MEDICATION_VERIFICATION", { medication_id: medicationId, startTime: startTime, alarmTime: this.alarmTime });
+    }
+  }
+}
 
 });

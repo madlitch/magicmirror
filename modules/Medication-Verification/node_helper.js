@@ -80,6 +80,42 @@ module.exports = NodeHelper.create({
           }
         });
       }
+      // Check if the message indicates that the hand is near the mouth
+      else if (message === "Hand not detected") {
+        // Get the stop time
+        const stopTime = new Date();
+
+        // Format start time
+        const formattedStartTime = this.formatDateTime(startTime);
+
+        // Format end time
+        const formattedEndTime = this.formatDateTime(stopTime);
+
+        
+
+        // Notify the module about the verification result along with stop time
+        this.sendSocketNotification("VERIFY_MEDICATION_RESULT", {
+          medication_id: medication_id, // Include medication ID in the payload
+          success: false,
+          message: "Medication intake unsuccessfully.",
+          startTime: formattedStartTime,
+          stopTime: formattedEndTime,
+          alarmTime: alarmTime
+        });
+
+        // Output formatted times
+        console.log("start_time:", formattedStartTime);
+        console.log("end_time:", formattedEndTime);
+
+        // End the Python script execution
+        this.pythonShell.end((err) => {
+          if (err) {
+            console.error("Error ending Python script:", err);
+          } else {
+            console.log("Python script ended.");
+          }
+        });
+      }
     });
   },
 

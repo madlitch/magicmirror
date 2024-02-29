@@ -19,6 +19,7 @@ Module.register("Medication-Verification", {
             alarmTime: payload.alarmTime // Pass the alarm time
         });
     }
+    
 },
 
   socketNotificationReceived: function (notification, payload) {
@@ -51,7 +52,11 @@ Module.register("Medication-Verification", {
           end_time: payload.stopTime,
           session_intakes: [medicationData]
       });
+     
+      // Send notification to the alarm module
+      this.sendNotification("VERIFICATION_COMPLETE");
       console.log(medicationData)
+      
     }
     else if (notification === "CLOUD_PUSH_SESSION_RESULT") {
       this.log(payload); 
