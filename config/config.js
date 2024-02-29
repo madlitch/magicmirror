@@ -56,6 +56,38 @@ let config = {
             module: "cloud",
             config: {}
         },
+        {
+            module: "MMM-ModuleScheduler",
+            config: {
+              schedule: [
+                {
+                  module: "MedicationScheduler",
+                  notification: "LOCK_MODULE",
+                  schedule: "0 0 * * *", // Set the schedule to activate the lock
+                  payload: {
+                    lockStrings: ["YourPasscode"] // Specify the passcode
+                  }
+                }
+              ]
+            }
+          },
+          {
+            module: "MMM-ModuleScheduler",
+            config: {
+              schedule: [
+                {
+                  module: "MedicationInput",
+                  notification: "LOCK_MODULE",
+                  schedule: "0 0 * * *", // Set the schedule to activate the lock
+                  payload: {
+                    lockStrings: ["YourPasscode"] // Specify the passcode
+                  }
+                }
+              ]
+            }
+          },
+                    
+          
         // {
         // 	module: "calendar",
         // 	header: "US Holidays",
