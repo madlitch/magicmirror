@@ -5,6 +5,8 @@
  * MIT Licensed.
  */
 
+/* global Module, Log */
+
 Module.register("Medication-Scheduler", {
   defaults: {},
 
@@ -27,8 +29,9 @@ Module.register("Medication-Scheduler", {
   log: function (data) {
     this.sendSocketNotification("LOG", data);
   },
+
   getStyles: function () {
-    return ["medication-scheduler.css"];
+    return ["Medication-Scheduler.css"];
   },
 
   getDom: function () {
@@ -54,6 +57,7 @@ Module.register("Medication-Scheduler", {
     const daysSelect = document.createElement("select");
     daysSelect.multiple = true;
     daysSelect.className = "medication-select";
+    daysSelect.size = 7; // Set the size to display all options without scrolling
     const daysOptions = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
     daysOptions.forEach((day) => {
       const option = document.createElement("option");
@@ -67,7 +71,7 @@ Module.register("Medication-Scheduler", {
     const timesSelect = document.createElement("select");
     timesSelect.multiple = true;
     timesSelect.className = "medication-select";
-
+    timesSelect.size = 7; 
     // Create options for all hours and minutes
     for (let hours = 0; hours <= 23; hours++) {
       for (let minutes = 0; minutes < 60; minutes += 30) {
@@ -78,6 +82,8 @@ Module.register("Medication-Scheduler", {
         timesSelect.appendChild(option);
       }
     }
+    wrapper.appendChild(timesSelect);
+
 
     wrapper.appendChild(timesSelect);
 

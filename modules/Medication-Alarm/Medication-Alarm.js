@@ -79,27 +79,25 @@ Module.register("Medication-Alarm", {
     const { title, message } = data;
     const notificationElement = this.createNotificationElement(title, message);
     this.notificationsWrapper.appendChild(notificationElement);
+
   },
 
-  toggleModuleVisibility: function (moduleName, show) {
-    const module = MM.getModules().enumerate(function (module) {
-      return module.name === moduleName;
-    }).next().value;
-
-    if (module) {
-      if (show) {
-        module.show(1000, function () { });
-      } else {
-        module.hide(1000, function () { });
-      }
-    }
-  },
 
   getDom: function () {
     const wrapper = document.createElement("div");
+    wrapper.className = "medication-alarm";
 
+    // Dim other modules if the alarm is active
     if (this.alarmActive) {
+      MM.getModules().enumerate((module) => {
+        // Exclude the medication alarm module itself
+        if (module.name !== "Medication-Alarm") {
+          module.hide(1000);
+        }
+      });
+
       const stopButton = document.createElement("button");
+      stopButton.className = "medication-alarm button";
       stopButton.innerHTML = "Stop I Am Taking My Pill!!";
       stopButton.addEventListener("click", () => {
         while (this.notificationsWrapper.firstChild) {
@@ -108,6 +106,7 @@ Module.register("Medication-Alarm", {
 
         this.stopAlarm();
 
+        // Show all modules when the alarm is stopped
         MM.getModules().enumerate((module) => {
           module.show(1000);
         });
@@ -121,6 +120,7 @@ Module.register("Medication-Alarm", {
     return wrapper;
   },
 
+
   socketNotificationReceived: function (notification, payload) {
     if (notification === "MEDICATION_ALARM_TEST") {
       this.notificationReceivedTime = new Date().getTime();
@@ -130,6 +130,7 @@ Module.register("Medication-Alarm", {
 
       console.log("Received Medication ID:", medicationId);
       console.log("Received Alarm Time:", alarmTime);
+
 
       // Push the received medication ID into the queue
       this.medicationQueue.push(medicationId);
@@ -146,19 +147,19 @@ Module.register("Medication-Alarm", {
       this.alarmTime = alarmTime; // Set the alarmTime property to the received alarmTime
       this.updateDom();
     }
-  
-},
 
-notificationReceived: function (notification, payload) {
-  if (notification === "VERIFICATION_COMPLETE") {
-    // Handle verification complete notification
-    // Start verification for the next medication in the queue
-    const medicationId = this.medicationQueue.shift(); // Remove and get the first element from the queue
-    if (medicationId) {
-      const startTime = new Date().getTime();
-      this.sendNotification("START_MEDICATION_VERIFICATION", { medication_id: medicationId, startTime: startTime, alarmTime: this.alarmTime });
+  },
+
+  notificationReceived: function (notification, payload) {
+    if (notification === "VERIFICATION_COMPLETE") {
+      // Handle verification complete notification
+      // Start verification for the next medication in the queue
+      const medicationId = this.medicationQueue.shift(); // Remove and get the first element from the queue
+      if (medicationId) {
+        const startTime = new Date().getTime();
+        this.sendNotification("START_MEDICATION_VERIFICATION", { medication_id: medicationId, startTime: startTime, alarmTime: this.alarmTime });
+      }
     }
   }
-}
 
 });

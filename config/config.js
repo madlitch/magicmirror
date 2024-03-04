@@ -90,6 +90,7 @@ let config = {
         {
             module: "Medication-Input",
             position: "bottom_right",
+            header: "Medication Input",
 
         },
         {
@@ -107,12 +108,8 @@ let config = {
         },
         {
             module: "Medication-Alarm",
-            position: "top_right",
-            header: "Medication Alarm",
-            config: {
-
-                medicationSchedule: []
-            }
+            position: "middle_center",
+            
         },
 
         // {

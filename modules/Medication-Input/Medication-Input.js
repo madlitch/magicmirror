@@ -49,16 +49,16 @@ Module.register("Medication-Input", {
     },
 
     getStyles: function () {
-        return ["medication-scheduler.css"];
+        return ["Medication-Input.css"];
     },
 
     getDom: function () {
         const wrapper = document.createElement("div");
-        wrapper.className = "medication-scheduler";
+        wrapper.className = "medication-input";
 
         // Pill box selection
         const boxSelectContainer = document.createElement("div");
-        boxSelectContainer.className = "box-select-container";
+        boxSelectContainer.className = "medication-container";
 
         const boxSelect = document.createElement("select");
         boxSelect.className = "box-select";
@@ -79,7 +79,7 @@ Module.register("Medication-Input", {
         const searchInput = document.createElement("input");
         searchInput.setAttribute("type", "text");
         searchInput.setAttribute("placeholder", "Search Brand Name");
-        searchInput.className = "medication-input";
+        searchInput.className = "medication-select";
         medicationContainer.appendChild(searchInput);
 
         // Select brand name
@@ -105,7 +105,7 @@ Module.register("Medication-Input", {
         quantityInput.setAttribute("type", "number");
         quantityInput.setAttribute("placeholder", "Enter Quantity");
         quantityInput.setAttribute("min", "1"); // Set the minimum value to 1
-        quantityInput.className = "medication-input";
+        quantityInput.className = "medication-select";
         medicationContainer.appendChild(quantityInput);
 
         // Schedule button
