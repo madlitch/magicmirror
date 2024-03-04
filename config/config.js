@@ -43,6 +43,21 @@ let config = {
             module: "alert"
         },
 
+        {
+            module: 'MMM-ModuleScheduler',
+            config: {
+                schedule: [
+                  {
+                    module: "Medication-Scheduler",
+                    notification: "LOCK_MODULE",
+                    schedule: "0 0 * * *",
+                    payload: {
+                      lockStrings: ["1234"]
+                    }
+                  }
+                ]
+              }
+        },
        
         {
             module: "updatenotification",
