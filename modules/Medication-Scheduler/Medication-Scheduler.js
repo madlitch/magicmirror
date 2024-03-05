@@ -8,7 +8,10 @@
 /* global Module, Log */
 
 Module.register("Medication-Scheduler", {
-  defaults: {},
+  defaults: {
+    passcode: "1234", // Set your default passcode here
+    locked: true
+  },
 
   start: function () {
     Log.info("Medication-Scheduler module started...");
@@ -38,108 +41,152 @@ Module.register("Medication-Scheduler", {
     const wrapper = document.createElement("div");
     wrapper.className = "medication-scheduler";
 
-    // Select medication ID input field
-    const medicationIdInput = document.createElement("input");
-    medicationIdInput.type = "hidden"; // Hide the input field
-    medicationIdInput.id = "medication-id-input"; // Set an ID for easy selection if needed
-    wrapper.appendChild(medicationIdInput);
+    if (this.config.locked) {
+      // Display passcode input field
+      const passcodeInput = document.createElement("input");
+      passcodeInput.type = "password";
+      passcodeInput.placeholder = "Enter passcode";
+      passcodeInput.id = "passcode-input";
+      passcodeInput.className = "medication-select";
+      wrapper.appendChild(passcodeInput);
 
-    // Select medication dropdown list
-    const medicationDropdown = document.createElement("select");
-    medicationDropdown.className = "medication-select";
-    medicationDropdown.addEventListener("change", () => {
-      // Set the value of the medication ID input field to the selected medication's ID
-      medicationIdInput.value = medicationDropdown.value;
-    });
-    wrapper.appendChild(medicationDropdown);
+      // Display unlock button
+      const unlockButton = document.createElement("button");
+      unlockButton.innerText = "Unlock";
+      unlockButton.className = "medication-button";
+      unlockButton.addEventListener("click", () => {
+        const passcode = document.getElementById("passcode-input").value;
+        if (passcode === this.config.passcode) {
+          this.config.locked = false;
+          this.updateDom();
 
-    // Select days
-    const daysSelect = document.createElement("select");
-    daysSelect.multiple = true;
-    daysSelect.className = "medication-select";
-    daysSelect.size = 7; // Set the size to display all options without scrolling
-    const daysOptions = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-    daysOptions.forEach((day) => {
-      const option = document.createElement("option");
-      option.value = day;
-      option.text = day;
-      daysSelect.appendChild(option);
-    });
-    wrapper.appendChild(daysSelect);
 
-    // Select times
-    const timesSelect = document.createElement("select");
-    timesSelect.multiple = true;
-    timesSelect.className = "medication-select";
-    timesSelect.size = 7; 
-    // Create options for all hours and minutes
-    for (let hours = 0; hours <= 23; hours++) {
-      for (let minutes = 0; minutes < 60; minutes += 30) {
-        const formattedTime = `${(hours < 10 ? '0' : '') + hours}:${(minutes === 0 ? '00' : minutes)}`;
-        const option = document.createElement("option");
-        option.value = formattedTime;
-        option.text = formattedTime;
-        timesSelect.appendChild(option);
-      }
+        } else {
+          alert("Incorrect passcode");
+        }
+      });
+      wrapper.appendChild(unlockButton);
     }
-    wrapper.appendChild(timesSelect);
+    else {
+
+      this.sendSocketNotification("GET_MEDICATIONS");
+      this.updateDom();
+      // Select medication ID input field
+      const medicationIdInput = document.createElement("input");
+      medicationIdInput.type = "hidden"; // Hide the input field
+      medicationIdInput.id = "medication-id-input"; // Set an ID for easy selection if needed
+      wrapper.appendChild(medicationIdInput);
+
+      // Select medication dropdown list
+      const medicationDropdown = document.createElement("select");
+      medicationDropdown.className = "medication-select";
+      medicationDropdown.addEventListener("change", () => {
+        // Set the value of the medication ID input field to the selected medication's ID
+        medicationIdInput.value = medicationDropdown.value;
+      });
+      wrapper.appendChild(medicationDropdown);
+
+      // Select days
+      const daysSelect = document.createElement("select");
+      daysSelect.multiple = true;
+      daysSelect.className = "medication-select";
+      daysSelect.size = 7; // Set the size to display all options without scrolling
+      const daysOptions = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+      daysOptions.forEach((day) => {
+        const option = document.createElement("option");
+        option.value = day;
+        option.text = day;
+        daysSelect.appendChild(option);
+      });
+      wrapper.appendChild(daysSelect);
+
+      // Select times
+      const timesSelect = document.createElement("select");
+      timesSelect.multiple = true;
+      timesSelect.className = "medication-select";
+      timesSelect.size = 7;
+      // Create options for all hours and minutes
+      for (let hours = 0; hours <= 23; hours++) {
+        for (let minutes = 0; minutes < 60; minutes += 30) {
+          const formattedTime = `${(hours < 10 ? '0' : '') + hours}:${(minutes === 0 ? '00' : minutes)}`;
+          const option = document.createElement("option");
+          option.value = formattedTime;
+          option.text = formattedTime;
+          timesSelect.appendChild(option);
+        }
+      }
+      wrapper.appendChild(timesSelect);
 
 
-    wrapper.appendChild(timesSelect);
+      wrapper.appendChild(timesSelect);
 
-    // Schedule button
-    const scheduleButton = document.createElement("button");
-    scheduleButton.innerText = "Schedule Medication";
-    scheduleButton.className = "medication-button";
-    scheduleButton.addEventListener("click", () => {
-      const medicationIdValue = medicationDropdown.value.trim(); // Get the selected medication's ID
-      const selectedDays = Array.from(daysSelect.selectedOptions).map((option) => option.value);
-      const selectedTimes = Array.from(timesSelect.selectedOptions).map((option) => option.value);
+      // Schedule button
+      const scheduleButton = document.createElement("button");
+      scheduleButton.innerText = "Schedule Medication";
+      scheduleButton.className = "medication-button";
+      scheduleButton.addEventListener("click", () => {
+        const medicationIdValue = medicationDropdown.value.trim(); // Get the selected medication's ID
+        const selectedDays = Array.from(daysSelect.selectedOptions).map((option) => option.value);
+        const selectedTimes = Array.from(timesSelect.selectedOptions).map((option) => option.value);
 
 
-      this.sendSocketNotification("SCHEDULE_MEDICATION", { medication_id: medicationIdValue, days: selectedDays, times: selectedTimes });
-      //Prepare medication data objects for each day-time combination
-      const medicationData = [];
-      selectedDays.forEach(day => {
-        selectedTimes.forEach(time => {
-          medicationData.push({
-            medication_id: medicationIdValue,
-            day: this.convertDayToNumber(day), // Convert day to number (0 for Sunday, 1 for Monday, etc.)
-            time: time
+        this.sendSocketNotification("SCHEDULE_MEDICATION", { medication_id: medicationIdValue, days: selectedDays, times: selectedTimes });
+        //Prepare medication data objects for each day-time combination
+        const medicationData = [];
+        selectedDays.forEach(day => {
+          selectedTimes.forEach(time => {
+            medicationData.push({
+              medication_id: medicationIdValue,
+              day: this.convertDayToNumber(day), // Convert day to number (0 for Sunday, 1 for Monday, etc.)
+              time: time
+            });
           });
         });
+
+        // Send schedule data to the cloud
+        this.sendNotification("CLOUD_PUSH_SCHEDULE", {
+          patient_id: "b6673aee-c9d8-11ee-8491-029e9cf81533",
+          cabinet_id: "b45569c2-c9d9-11ee-8491-029e9cf81533",
+          medications: medicationData
+        });
+        this.log(medicationData);
+
+
       });
 
-      // Send schedule data to the cloud
-      this.sendNotification("CLOUD_PUSH_SCHEDULE", {
-        patient_id: "b6673aee-c9d8-11ee-8491-029e9cf81533",
-        cabinet_id: "b45569c2-c9d9-11ee-8491-029e9cf81533",
-        medications: medicationData
+      wrapper.appendChild(scheduleButton);
+
+      // Delete schedule button
+      const deleteButton = document.createElement("button");
+      deleteButton.innerText = "Delete Schedule";
+      deleteButton.className = "medication-button";
+      deleteButton.addEventListener("click", () => {
+        const medicationIdValue = medicationDropdown.value.trim(); // Get the selected medication's ID
+        const selectedDays = Array.from(daysSelect.selectedOptions).map((option) => option.value);
+        const selectedTimes = Array.from(timesSelect.selectedOptions).map((option) => option.value);
+        this.sendSocketNotification("DELETE_SCHEDULE", { medication_id: medicationIdValue, days: selectedDays, times: selectedTimes });
       });
-      this.log(medicationData);
+      wrapper.appendChild(deleteButton);
 
-
-    });
-
-    wrapper.appendChild(scheduleButton);
-
-    // Delete schedule button
-    const deleteButton = document.createElement("button");
-    deleteButton.innerText = "Delete Schedule";
-    deleteButton.className = "medication-button";
-    deleteButton.addEventListener("click", () => {
-      const medicationIdValue = medicationDropdown.value.trim(); // Get the selected medication's ID
-      const selectedDays = Array.from(daysSelect.selectedOptions).map((option) => option.value);
-      const selectedTimes = Array.from(timesSelect.selectedOptions).map((option) => option.value);
-      this.sendSocketNotification("DELETE_SCHEDULE", { medication_id: medicationIdValue, days: selectedDays, times: selectedTimes });
-    });
-    wrapper.appendChild(deleteButton);
-
+      // Lock button
+      const lockButton = document.createElement("button");
+      lockButton.innerText = "Lock";
+      lockButton.className = "medication-button";
+      lockButton.addEventListener("click", () => {
+        this.config.locked = true;
+        this.updateDom();
+      });
+      wrapper.appendChild(lockButton);
+    }
     return wrapper;
+
   },
 
   updateMedicationOptions: function (medications) {
     const medicationDropdown = document.querySelector(".medication-select");
+    // Clear existing options
+    medicationDropdown.innerHTML = '';
+    // Add new options
     medications.forEach(medication => {
       const option = document.createElement("option");
       option.value = medication.medication_id;
@@ -147,6 +194,7 @@ Module.register("Medication-Scheduler", {
       medicationDropdown.appendChild(option);
     });
   },
+
 
   // Helper function to convert day name to number (0 for Sunday, 1 for Monday, etc.)
   convertDayToNumber: function (dayName) {
