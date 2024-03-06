@@ -99,7 +99,7 @@ let config = {
         },
         {
             module: "Medication-Scheduler",
-            position: "top_center",
+            position: "top_right",
             header: "Medication Scheduler",
 
         },
