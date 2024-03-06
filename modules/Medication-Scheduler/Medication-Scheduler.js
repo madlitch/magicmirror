@@ -19,6 +19,16 @@ Module.register("Medication-Scheduler", {
     this.sendSocketNotification("GET_MEDICATIONS");
   },
 
+  notificationReceived: function (notification, payload) {
+    if (notification === "UNLOCK_MEDICATION_SCHEDULER") {
+        this.config.locked = false;
+        this.updateDom();
+    } else if (notification === "LOCK_MEDICATION_SCHEDULER") {
+        this.config.locked = true;
+        this.updateDom();
+    }
+  },
+
   socketNotificationReceived: function (notification, payload) {
     if (notification === "MEDICATION_DATA_FOUND") {
       this.medicationData = payload;
@@ -58,6 +68,7 @@ Module.register("Medication-Scheduler", {
         const passcode = document.getElementById("passcode-input").value;
         if (passcode === this.config.passcode) {
           this.config.locked = false;
+          this.sendNotification("UNLOCK_MEDICATION_INPUT");
           this.updateDom();
 
 
@@ -174,6 +185,7 @@ Module.register("Medication-Scheduler", {
       lockButton.className = "medication-button";
       lockButton.addEventListener("click", () => {
         this.config.locked = true;
+        this.sendNotification("LOCK_MEDICATION_INPUT");
         this.updateDom();
       });
       wrapper.appendChild(lockButton);
