@@ -22,6 +22,8 @@ Module.register("Medication-Verification", {
     
 },
 
+
+
   socketNotificationReceived: function (notification, payload) {
     if (notification === "VERIFY_MEDICATION_RESULT") {
         // Log the entire payload object
@@ -61,7 +63,19 @@ Module.register("Medication-Verification", {
     else if (notification === "CLOUD_PUSH_SESSION_RESULT") {
       this.log(payload); 
     }
+   
+    else if (notification === "MEDICATION_BOX_NUMBER") {
+      // Handle the notification
+      console.log("Received MEDICATION_BOX_NUMBER:", payload);
+      this.sendNotification("BOX_NUMBER", {
+          boxnumber: payload.boxNumber // Access boxNumber from payload
+      });
+      console.log("The box is:", payload.boxNumber); // Log boxNumber
+  }
   },
+  
+ 
+
 
   log: function (data) {
     this.sendSocketNotification("LOG", data);

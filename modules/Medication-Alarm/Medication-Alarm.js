@@ -105,6 +105,7 @@ Module.register("Medication-Alarm", {
         }
 
         this.stopAlarm();
+        this.sendNotification("ALARM_STOPPED");
 
         // Show all modules when the alarm is stopped
         MM.getModules().enumerate((module) => {
@@ -123,6 +124,7 @@ Module.register("Medication-Alarm", {
 
   socketNotificationReceived: function (notification, payload) {
     if (notification === "MEDICATION_ALARM_TEST") {
+      this.sendNotification("MEDICATION_ALARM");
       this.notificationReceivedTime = new Date().getTime();
 
       const medicationId = payload.medication_id;
