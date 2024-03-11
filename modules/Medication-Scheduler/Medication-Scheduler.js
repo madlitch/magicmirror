@@ -52,31 +52,7 @@ Module.register("Medication-Scheduler", {
     wrapper.className = "medication-scheduler";
 
     if (this.config.locked) {
-      // Display passcode input field
-      const passcodeInput = document.createElement("input");
-      passcodeInput.type = "password";
-      passcodeInput.placeholder = "Enter passcode";
-      passcodeInput.id = "passcode-input";
-      passcodeInput.className = "medication-select";
-      wrapper.appendChild(passcodeInput);
-
-      // Display unlock button
-      const unlockButton = document.createElement("button");
-      unlockButton.innerText = "Unlock";
-      unlockButton.className = "medication-button";
-      unlockButton.addEventListener("click", () => {
-        const passcode = document.getElementById("passcode-input").value;
-        if (passcode === this.config.passcode) {
-          this.config.locked = false;
-          this.sendNotification("UNLOCK_MEDICATION_INPUT");
-          this.updateDom();
-
-
-        } else {
-          alert("Incorrect passcode");
-        }
-      });
-      wrapper.appendChild(unlockButton);
+      
     }
     else {
 
