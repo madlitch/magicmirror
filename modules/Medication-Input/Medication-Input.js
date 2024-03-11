@@ -66,6 +66,11 @@ Module.register("Medication-Input", {
     getDom: function () {
         const wrapper = document.createElement("div");
         wrapper.className = "medication-input";
+        this.sendNotification("KEYBOARD", {
+            key: "uniqueKey",
+            style: "default",
+            data: {},
+        });
 
         if (this.config.locked) {
             // Display passcode input field
@@ -119,6 +124,11 @@ Module.register("Medication-Input", {
             searchInput.setAttribute("placeholder", "Search Brand Name");
             searchInput.className = "medication-select";
             medicationContainer.appendChild(searchInput);
+            this.sendNotification("KEYBOARD_INPUT", {
+                key: "uniqueKey",
+                message: "test",
+                data: {}
+            });
 
             // Select brand name
             const brandSelect = document.createElement("select");

@@ -106,6 +106,16 @@ let config = {
         {
             module: "Medication-Verification",
         },
+
+        {
+            module: "MMM-Keyboard",
+            position: "fullscreen_above",
+            config: {
+                startWithNumbers: false,
+                startUppercase: true,
+                debug: false
+            }
+        },
         {
             module: "Medication-Alarm",
             position: "middle_center",
