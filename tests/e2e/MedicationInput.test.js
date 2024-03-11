@@ -203,8 +203,8 @@ describe("Medication-Input NodeHelper", () => {
     // Trigger the socketNotificationReceived lifecycle event
     await nodeHelper.socketNotificationReceived("SAVE_PATIENT_MEDICATION", payload);
   
-    expect(mockDatabase.get).toHaveBeenCalledTimes(1); // Check for existing medication and retrieving medication details
-    expect(mockDatabase.run).toHaveBeenCalledTimes(0); // Check for the main insertion
+    expect(mockDatabase.get).toHaveBeenCalledTimes(2); // Check for existing medication and retrieving medication details
+    expect(mockDatabase.run).toHaveBeenCalledTimes(1); // Check for the main insertion
   });
   
 });

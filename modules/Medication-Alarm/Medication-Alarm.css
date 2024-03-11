@@ -1,41 +1,61 @@
-/*
- *
- * Medication-Alarm_module
- *
- * Lyba Mughees
- * MIT Licensed.
- *
- * Custom here your css module
- *
- */
+/* Medication-Alarm.css */
 
- /* Medication-Alarm.css */
+.medication-alarm {
+  font-family: "Tahoma", sans-serif;
+  /* Sans-serif font */
+  font-size: 60px;
+  /* Adjust font size */
 
- .medication-alert {
-  color: red;
   text-align: center;
-  font-size: 40px;
-  font-weight: normal;
-  width: 600px;
+  /* Align the content to the left */
+
+
 }
 
-.popup-div {
-  color: red;
-  text-align: center;
-  font-size: 20px; /* Adjust the font size */
-  font-weight: bold; /* Make it bold */
-  background-color: yellow; /* Add background color for visibility */
-  padding: 10px; /* Add padding for spacing */
+.medication-notifications {
+  margin-bottom: 20px;
+  /* Add margin bottom for spacing */
 }
 
 .medication-notification {
-  /* Add margin to create space between notifications */
-  margin-bottom: 10px; /* Adjust as needed */
+  color: red;
+  font-family: "Tahoma", sans-serif;
+  /* Sans-serif font */
+  font-size: 60px;
+  /* Set text color */
+  margin-bottom: 10px;
+  /* Add margin bottom for spacing */
 }
 
-.medication-button {
-  /* Add margin around the reset button */
-  margin-top: 20px; /* Adjust as needed */
+.medication-notification-title {
+  font-size: 60px;
+  /* Adjust font size for title */
+  font-weight: bold;
+  /* Make it bold */
 }
 
+.medication-notification-message {
+  font-family: "Tahoma", sans-serif;
+  /* Sans-serif font */
+  font-size: 48px;
+  /* Adjust font size for message */
+}
 
+.medication-alarm button {
+  background-color: orangered; /* Add color to buttons */
+  border: none;
+  color: white;
+  padding: 20px 40px; /* Increase padding for bigger buttons */
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-family: Tahoma, sans-serif;
+  font-size: 48px; /* Increase font size for bigger buttons */
+  cursor: pointer;
+  border-radius: 5px; /* Add border radius for rounded corners */
+  transition-duration: 0.4s; /* Add transition for smooth hover effect */
+}
+
+.medication-alarm button:hover {
+  background-color: darkred; /* Darken the button color on hover */
+}

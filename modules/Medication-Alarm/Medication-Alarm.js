@@ -13,6 +13,13 @@
 /* global Module, Log */
 
 Module.register("Medication-Alarm", {
+  notificationSound: null,
+  alarmActive: false,
+  notificationsWrapper: null,
+  alarmTime: null,
+  medicationId: null,
+  medicationQueue: [], // Initialize an empty array to store medication IDs
+
   start: function () {
     console.log("Medication-Alarm module started...");
     this.notificationSound = new Audio("modules/Medication-Alarm/time_to_take_your_pill.mp3");
@@ -21,36 +28,35 @@ Module.register("Medication-Alarm", {
     this.notificationsWrapper.className = "medication-notifications";
     this.sendSocketNotification("MEDICATION_ALARM_TEST");
     this.alarmTime = null;
-    this.medicationId = null; // Initialize medicationId to store the current medication ID
+    this.medicationId = null;
   },
-  
-  stopAlarm: function () {
 
+  stopAlarm: function () {
     const startTime = new Date().getTime();
-    
-        const stopTime = new Date().getTime();
-        const elapsedTime = (stopTime - this.alarmTime) / 1000;
-        console.log("Time elapsed (seconds):", elapsedTime);
-        
-    
+
+    const stopTime = new Date().getTime();
+    const elapsedTime = (stopTime - this.alarmTime) / 1000;
+    console.log("Time elapsed (seconds):", elapsedTime);
+
     if (this.notificationSound instanceof Audio) {
-        this.alarmActive = false;
-        this.notificationSound.loop = false;
-        this.notificationSound.pause();
+      this.alarmActive = false;
+      this.notificationSound.loop = false;
+      this.notificationSound.pause();
     }
 
-  
-      // Pass start time and alarm time to the Medication-Verification module
-      this.sendNotification("START_MEDICATION_VERIFICATION", { medication_id: this.medicationId, startTime: startTime, alarmTime: this.alarmTime });
-      this.alarmTime = null;
-},
+    // Start the verification process for the first medication in the queue
+    const medicationId = this.medicationQueue.shift(); // Remove and get the first element from the queue
+    if (medicationId) {
+      this.sendNotification("START_MEDICATION_VERIFICATION", { medication_id: medicationId, startTime: startTime, alarmTime: this.alarmTime });
+    }
 
+    this.updateDom();
+  },
 
   getStyles: function () {
     return ["Medication-Alarm.css"];
   },
 
-  // Function to create a notification element
   createNotificationElement: function (title, message) {
     const notificationWrapper = document.createElement("div");
     notificationWrapper.className = "medication-notification";
@@ -73,92 +79,89 @@ Module.register("Medication-Alarm", {
     const { title, message } = data;
     const notificationElement = this.createNotificationElement(title, message);
     this.notificationsWrapper.appendChild(notificationElement);
+
   },
-
-  toggleModuleVisibility: function (moduleName, show) {
-    const module = MM.getModules().enumerate(function (module) {
-      return module.name === moduleName;
-    }).next().value;
-
-    if (module) {
-      if (show) {
-        module.show(1000, function () {
-          // Optional callback function after the module is shown
-        });
-      } else {
-        module.hide(1000, function () {
-          // Optional callback function after the module is hidden
-        });
-      }
-    }
-  },
-
-  // startAlarm: function () {
-  //   // Play the sound effect continuously
-  //   if (this.notificationSound instanceof Audio) {
-  //     this.alarmActive = true;
-  //     this.notificationSound.loop = true;
-  //     this.notificationSound.play();
-  //   }
-  // },
 
 
   getDom: function () {
     const wrapper = document.createElement("div");
+    wrapper.className = "medication-alarm";
 
-    // Create a button element to reset notifications
-    const resetButton = document.createElement("button");
-    resetButton.innerHTML = "Stop I Am Taking My Pill!!";
-    resetButton.addEventListener("click", () => {
-      // Remove all child elements (notifications) from the notifications wrapper
-      while (this.notificationsWrapper.firstChild) {
-        this.notificationsWrapper.removeChild(this.notificationsWrapper.firstChild);
-      }
-
-      // Stop the alarm
-      this.stopAlarm();
-
-      // Show all hidden modules
+    // Dim other modules if the alarm is active
+    if (this.alarmActive) {
       MM.getModules().enumerate((module) => {
-        module.show(1000);
+        // Exclude the medication alarm module itself
+        if (module.name !== "Medication-Alarm") {
+          module.hide(1000);
+        }
       });
-    });
 
-    // Append the reset button to the main wrapper
-    wrapper.appendChild(resetButton);
+      const stopButton = document.createElement("button");
+      stopButton.className = "medication-alarm button";
+      stopButton.innerHTML = "Stop I Am Taking My Pill!!";
+      stopButton.addEventListener("click", () => {
+        while (this.notificationsWrapper.firstChild) {
+          this.notificationsWrapper.removeChild(this.notificationsWrapper.firstChild);
+        }
 
-    // Append the notifications wrapper to the main wrapper
+        this.stopAlarm();
+        this.sendNotification("ALARM_STOPPED");
+
+        // Show all modules when the alarm is stopped
+        MM.getModules().enumerate((module) => {
+          module.show(1000);
+        });
+      });
+
+      wrapper.appendChild(stopButton);
+    }
+
     wrapper.appendChild(this.notificationsWrapper);
 
     return wrapper;
   },
 
+
   socketNotificationReceived: function (notification, payload) {
     if (notification === "MEDICATION_ALARM_TEST") {
+      this.sendNotification("MEDICATION_ALARM");
+      this.notificationReceivedTime = new Date().getTime();
 
-      this.notificationReceivedTime = new Date().getTime(); // Capture the time when notification is received
+      const medicationId = payload.medication_id;
+      const alarmTime = new Date(payload.time);
 
-        
-        // Extract medication ID from the payload
-        const medicationId = payload.medication_id;
-        const alarmTime = new Date(payload.time);
+      console.log("Received Medication ID:", medicationId);
+      console.log("Received Alarm Time:", alarmTime);
 
-        // Log medication ID
-        console.log("Received Medication ID:", medicationId);
-        console.log(("Received Medication ID:", alarmTime));
 
-        // Store the medication ID in the module scope
-        this.medicationId = medicationId;
-        this.alarmTime=alarmTime;
+      // Push the received medication ID into the queue
+      this.medicationQueue.push(medicationId);
 
-        
-        // Handle medication notifications received from the helper
-        this.displayMedicationNotification(payload);
-        this.alarmActive = true;
-        this.notificationSound.loop = true;
-        this.notificationSound.play();
+      // Log the current medication queue
+      console.log("Medication Queue:", this.medicationQueue);
+
+      // Display the medication notification and start the alarm
+      this.displayMedicationNotification(payload);
+      this.alarmActive = true;
+      console.log("Alarm Active:", this.alarmActive);
+      this.notificationSound.loop = true;
+      this.notificationSound.play();
+      this.alarmTime = alarmTime; // Set the alarmTime property to the received alarmTime
+      this.updateDom();
     }
-},
 
+  },
+
+  notificationReceived: function (notification, payload) {
+    if (notification === "VERIFICATION_COMPLETE") {
+      // Handle verification complete notification
+      // Start verification for the next medication in the queue
+      const medicationId = this.medicationQueue.shift(); // Remove and get the first element from the queue
+      if (medicationId) {
+        const startTime = new Date().getTime();
+        this.sendNotification("START_MEDICATION_VERIFICATION", { medication_id: medicationId, startTime: startTime, alarmTime: this.alarmTime });
+      }
+    }
+  }
 
 });

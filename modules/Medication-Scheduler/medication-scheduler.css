@@ -1,21 +1,42 @@
+/* Medication-Scheduler.css */
 .medication-scheduler {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .medication-input, .medication-select, .medication-button {
-    margin: 5px;
-  }
-  .medication-select {
-    /* Adjust position to prevent overlap */
-    position: absolute; /* or relative, fixed, etc. */
-    margin-top: 20px;
-    top: 100px; /* Adjust as needed */
-    left: 20px; /* Adjust as needed */
-    z-index: 1000; /* Set a higher z-index to ensure it appears above other elements if necessary */
-    /* Add any other styles as needed */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.medication-input,
+.medication-select,
+.medication-button {
+  margin: 10px; /* Increase margin for better spacing */
+}
+.medication-select {
+  width: 400px; /* Adjust width for better visibility */
+  font-size: 40px; /* Adjust font size */
+  border: 2px solid #4CAF50; /* Add border for better visibility */
+  border-radius: 5px; /* Add border radius for rounded corners */
+  padding: 10px; /* Adjust padding */
+  margin-bottom: 10px; /* Adjust margin bottom */
+}
+
+.medication-button {
+  background-color: #4CAF50; /* Add color to buttons */
+  border: none;
+  color: white;
+  padding: 20px 40px; /* Increase padding for bigger buttons */
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-family: Tahoma, sans-serif;
+  font-size: 32px; /* Increase font size for bigger buttons */
+  cursor: pointer;
+  border-radius: 5px; /* Add border radius for rounded corners */
+  transition-duration: 0.4s; /* Add transition for smooth hover effect */
 }
 
 
-  
+.medication-button:hover {
+  background-color: #45a049; /* Darken the button color on hover */
+}
+
+/* Add any other styles as needed */

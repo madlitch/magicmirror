@@ -1,0 +1,67 @@
+/* Medication-Input.css */
+.medication-input {
+  font-family: "Tahoma", sans-serif; /* Sans-serif font */
+}
+
+.medication-input,
+.brand-select,
+.box-select {
+  margin: 10px; /* Increase margin for better spacing */
+  font-size: 16px; /* Adjust font size */
+}
+
+.medication-container {
+  margin-bottom: 20px; /* Increase margin bottom for better spacing */
+  padding: 20px; /* Adjust padding */
+}
+
+.brand-select,
+.box-select {
+  width: 450px; /* Adjust width for better visibility */
+  font-weight: bold; /* Make the font bold */
+  border: 5px solid #4CAF50; /* Add border for better visibility */
+  border-radius: 5px; /* Add border radius for rounded corners */
+  padding: 10px; /* Adjust padding */
+  margin-bottom: 10px; /* Adjust margin bottom */
+  font-family: "Tahoma", sans-serif;
+  font-size: 40px; /* Increase font size for better readability */
+}
+
+
+.brand-select {
+  height: 70px; /* Adjust height for better visibility */
+}
+
+.medication-input {
+  width: 500px; /* Adjust width for better visibility on a 27" monitor */
+  font-family: "Tahoma", sans-serif;
+  font-size: 40px; /* Increase font size for better readability */
+  font-weight: bold; /* Make the font bold */ 
+}
+
+.medication-select {
+  width: 450px; /* Adjust width for better visibility */
+  font-weight: bold; /* Make the font bold */
+  border: 5px solid #4CAF50; /* Add border for better visibility */
+  border-radius: 5px; /* Add border radius for rounded corners */
+  padding: 10px; /* Adjust padding */
+  margin-bottom: 10px; /* Adjust margin bottom */
+  font-family: "Tahoma", sans-serif;
+  font-size: 40px; /* Increase font size for better readability */
+}
+
+.medication-button {
+  background-color: #4CAF50; /* Add color to buttons */
+  border: none;
+  color: white;
+  padding: 10px 20px; /* Adjust padding */
+  font-family: "Tahoma", sans-serif; /* Sans-serif font */
+  font-size: 16px; /* Adjust font size */
+  cursor: pointer;
+  border-radius: 5px; /* Add border radius for rounded corners */
+  transition-duration: 0.4s; /* Add transition for smooth hover effect */
+}
+
+.medication-button:hover {
+  background-color: #45a049; /* Darken the button color on hover */
+}

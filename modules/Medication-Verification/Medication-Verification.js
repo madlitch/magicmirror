@@ -19,7 +19,10 @@ Module.register("Medication-Verification", {
             alarmTime: payload.alarmTime // Pass the alarm time
         });
     }
+    
 },
+
+
 
   socketNotificationReceived: function (notification, payload) {
     if (notification === "VERIFY_MEDICATION_RESULT") {
@@ -51,12 +54,28 @@ Module.register("Medication-Verification", {
           end_time: payload.stopTime,
           session_intakes: [medicationData]
       });
+     
+      // Send notification to the alarm module
+      this.sendNotification("VERIFICATION_COMPLETE");
       console.log(medicationData)
+      
     }
     else if (notification === "CLOUD_PUSH_SESSION_RESULT") {
       this.log(payload); 
     }
+   
+    else if (notification === "MEDICATION_BOX_NUMBER") {
+      // Handle the notification
+      console.log("Received MEDICATION_BOX_NUMBER:", payload);
+      this.sendNotification("BOX_NUMBER", {
+          boxnumber: payload.boxNumber // Access boxNumber from payload
+      });
+      console.log("The box is:", payload.boxNumber); // Log boxNumber
+  }
   },
+  
+ 
+
 
   log: function (data) {
     this.sendSocketNotification("LOG", data);

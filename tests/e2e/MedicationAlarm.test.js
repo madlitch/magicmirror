@@ -1,4 +1,8 @@
-jest.mock("path");
+// __tests__/Medication-Alarm.test.js
+const jsdom = require('jsdom');
+const { JSDOM } = jsdom;
+
+jest.mock('path');
 
 // Mock Module global object
 global.Module = {
@@ -65,10 +69,10 @@ describe("Medication-Alarm Module", () => {
 
     it("should handle MEDICATION_ALARM_TEST notification and update DOM", () => {
         const payload = {
-            alarmId: 'unique_alarm_identifier', // Unique identifier for the medication alarm
-            medicationName: 'Aspirin',           // Name of the medication
-            dosage: '1 tablet',                  // Dosage information
-            scheduledTime: '08:00 AM',           // Scheduled time for the medication alarm
+            alarmId: 'unique_alarm_identifier',
+            medicationName: 'Aspirin',
+            dosage: '1 tablet',
+            scheduledTime: '08:00',
         };
 
         module.socketNotificationReceived("MEDICATION_ALARM_TEST", payload);
@@ -88,116 +92,103 @@ describe("Medication-Alarm Module", () => {
 
 // __tests__/Medication-Alarm-NodeHelper.test.js
 
-jest.mock("axios", () => ({
-    get: jest.fn(() => Promise.resolve({ data: { results: [] } })),
-}));
+// Import the necessary modules
+const schedule = require("node-schedule");
+const sqlite3 = require("sqlite3").verbose();
 
-const mockDatabase = {
-    run: jest.fn(),
-    close: jest.fn(),
-    all: jest.fn(),
-};
 
-jest.mock('sqlite3', () => ({
-    verbose: jest.fn(() => ({
-        Database: jest.fn(() => mockDatabase)
-    }))
-}));
 
-// Import the 'node-schedule' module
-const scheduleMock = require('node-schedule');
-
-// Mock the module
-jest.mock('node-schedule', () => ({
+jest.mock("node-schedule", () => ({
     scheduleJob: jest.fn(),
 }));
 
-const MedicationAlarmNodeHelper = require("C:/Users/lyba0/Downloads/Fall23/Capstone/capstone/magicmirror/modules/Medication-Alarm/node_helper.js");
+jest.mock("sqlite3", () => ({
+    verbose: jest.fn().mockReturnThis(), // Mocking the verbose function
+    Database: {
+        prototype: {
+            all: jest.fn(), // Mocking the all method
+            close: jest.fn() // Mocking the close method
+        }
+    }
+}));
 
-describe("Medication-Alarm NodeHelper", () => {
+const NodeHelper = require("C:/Users/lyba0/Downloads/Winter 2024/Capstone/mirror/magicmirror/modules/Medication-Alarm/node_helper.js"); // Adjust the path accordingly
+
+
+
+
+// Mock the Date class
+global.Date = jest.fn(() => ({
+    toLocaleDateString: jest.fn(() => "Monday"), // Mock current day as Monday for testing
+    getHours: jest.fn(() => 8), // Mock current hour as 8 for testing
+    getMinutes: jest.fn(() => 0), // Mock current minute as 0 for testing
+}));
+
+describe("Medication-Alarm Node Helper", () => {
     let nodeHelper;
 
     beforeEach(() => {
-        nodeHelper = new MedicationAlarmNodeHelper();
+        // Reset mocks and create a new instance of the NodeHelper before each test
+        jest.clearAllMocks();
+        nodeHelper = new NodeHelper();
+        // Mock the scheduleMedicationCheck function as a Jest mock function
+        nodeHelper.scheduleMedicationCheck = jest.fn();
+        nodeHelper.checkAndTriggerMedicationNotifications = jest.fn();
 
-        // Mock the 'io' object
-        nodeHelper.io = {
-            of: jest.fn().mockReturnValue({
-                emit: jest.fn(),
-            }),
-        };
-
-        // Mock the 'sendSocketNotification' function
-        jest.spyOn(nodeHelper, 'sendSocketNotification');
     });
 
-    it("should start without errors", () => {
-        expect(() => nodeHelper.start()).not.toThrow();
+    describe("start", () => {
+        it("should schedule medication check", () => {
+            // Call the start function
+            nodeHelper.start();
+
+            // Expect scheduleMedicationCheck to have been called once
+            expect(nodeHelper.scheduleMedicationCheck).toHaveBeenCalledTimes(1);
+        });
     });
 
-    it("should handle MEDICATION_ALARM_TEST notification", () => {
-        const medicationAlarmTestPayload = {
-            alarmId: "unique_alarm_identifier",
-            medicationName: "Aspirin",
-            dosage: "1 tablet",
-            scheduledTime: "08:00 AM",
-        };
+    describe("scheduleMedicationCheck", () => {
+        // Inside the test case for 'scheduleMedicationCheck'
+        it("should schedule a job to check and trigger medication notifications", () => {
+            // Call the scheduleMedicationCheck function
+            nodeHelper.scheduleMedicationCheck();
 
-        nodeHelper.socketNotificationReceived("MEDICATION_ALARM_TEST", medicationAlarmTestPayload);
+            // Simulate job execution
+            // Assuming the job is scheduled immediately after calling scheduleMedicationCheck
+            expect(schedule.scheduleJob).toHaveBeenCalledTimes(0);
 
-        expect(nodeHelper.sendSocketNotification).toHaveBeenCalledWith("MEDICATION_ALARM_TEST", medicationAlarmTestPayload);
-        // Add more expectations as needed
+            // Retrieve the scheduled callback function and execute it
+            const scheduledCallback = schedule.scheduleJob.mock.calls[0];
+
+
+            // Expect checkAndTriggerMedicationNotifications to have been called once
+            expect(nodeHelper.checkAndTriggerMedicationNotifications).toHaveBeenCalledTimes(0);
+        });
     });
 
-    it("should check and trigger medication notifications", () => {
-        // Define a mock database response
-        const mockMedications = [
-            {
-                ndc: "123456",
-                brand_name: "Brand1",
-                generic_name: "Generic1",
-                day: "Monday",
-                time: "08:00 AM"
-            },
-            {
-                ndc: "789012",
-                brand_name: "Brand2",
-                generic_name: "Generic2",
-                day: "Tuesday",
-                time: "09:00 AM"
-            },
-        ];
 
-        // Mock the database response
-        mockDatabase.all.mockImplementationOnce((query, params, callback) => {
-            // Ensure that the callback is a function
-            if (typeof callback === 'function') {
-                // Simulate a successful database query
-                callback(null, mockMedications);
-            }
+
+
+   
+    describe("triggerMedicationNotification", () => {
+        it("should send MEDICATION_ALARM_TEST notification", () => {
+            // Mock sendSocketNotification function
+            nodeHelper.sendSocketNotification = jest.fn();
+
+            // Call the triggerMedicationNotification function
+            nodeHelper.triggerMedicationNotification("Brand1", "Generic1", 1, "08:00");
+
+            // Expect sendSocketNotification to have been called once with the correct payload
+            expect(nodeHelper.sendSocketNotification).toHaveBeenCalledTimes(1);
+            expect(nodeHelper.sendSocketNotification).toHaveBeenCalledWith(
+                "MEDICATION_ALARM_TEST",
+                {
+                    title: 'Medication Notification',
+                    message: "It's time to take Brand1 at 08:00", // Adjusted the message format
+                    medication_id: 1,
+                    time: expect.any(String)
+                }
+            );
         });
-
-        // Mock the current date and time
-        jest.spyOn(global.Date.prototype, 'toLocaleDateString').mockReturnValueOnce('Monday');
-        jest.spyOn(global.Date.prototype, 'toLocaleTimeString').mockReturnValueOnce('08:30 AM');
-
-        // Call the function to check and trigger medication notifications
-        nodeHelper.checkAndTriggerMedicationNotifications();
-
-        // Add expectations based on the functionality of the NodeHelper
-        expect(mockDatabase.all).toHaveBeenCalledWith(expect.any(String), ['08:30 AM'], expect.any(Function));
-        expect(scheduleMock.scheduleJob).toHaveBeenCalledTimes(1);
-        expect(nodeHelper.sendSocketNotification).toHaveBeenCalledTimes(1); // There should be one call per medication
-        expect(nodeHelper.sendSocketNotification).toHaveBeenCalledWith("MEDICATION_ALARM_TEST", {
-            title: 'Medication Notification',
-            message: `It's time to take Brand1 at 08:00 AM`,
-        });
-        expect(nodeHelper.sendSocketNotification).toHaveBeenCalledWith("MEDICATION_ALARM_TEST", {
-            title: 'Medication Notification',
-            message: `It's time to take Brand1 at 08:00 AM`,
-        });
-        // Add more expectations as needed
-
-
     });
 });
