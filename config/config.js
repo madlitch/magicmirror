@@ -34,212 +34,165 @@ let config = {
 	language: "en",
 	locale: "en-US",
 	logLevel: ["INFO", "LOG", "WARN", "ERROR", "DEBUG"], // Add "DEBUG" for even more logging
-	// logLevel: ["INFO", "LOG", "WARN", "ERROR"], // Add "DEBUG" for even more logging
 	timeFormat: 24,
 	units: "metric",
-
-    modules: [
-        {
-            module: "alert"
-        },
-
-
-        {
-            module: "updatenotification",
-            position: "top_bar"
-        },
-        {
-            module: "clock",
-            position: "top_left"
-        },
-        {
-            module: "cloud",
-            config: {}
-        },
-        // {
-        // 	module: "calendar",
-        // 	header: "US Holidays",
-        // 	position: "top_left",
-        // 	config: {
-        // 		calendars: [
-        // 			{
-        // 				fetchInterval: 7 * 24 * 60 * 60 * 1000,
-        // 				symbol: "calendar-check",
-        // 				url: "https://ics.calendarlabs.com/76/mm3137/US_Holidays.ics"
-        // 			}
-        // 		]
-        // 	}
-        // },
-        {
-            module: "compliments",
-            position: "lower_third"
-        },
-        // {
-        // 	module: "weather",
-        // 	position: "top_right",
-        // 	header: "Weather Forecast",
-        // 	config: {
-        // 		weatherProvider: "envcanada",
-        // 		type: "forecast",
-        // 		siteCode: "s0000707",
-        // 		provCode: "ON",
-        // 		location: "Oshawa, ON"
-        // 	}
-        // },
-
-        {
-            module: "Medication-Input",
-            position: "bottom_right",
-            header: "Medication Input",
-
-        },
-        {
-            module: "Medication-Management",
-
-        },
-        {
-            module: "Medication-Scheduler",
-            position: "top_right",
-            header: "Medication Scheduler",
-
-        },
-        {
-            module: "Medication-Verification",
-        },
-
-     
-        {
-            module: "Medication-Alarm",
-            position: "middle_center",
-            
-        },
-
-        // {
-        // 	module: "newsfeed",
-        // 	position: "bottom_bar",
-        // 	config: {
-        // 		feeds: [
-        // 			{
-        // 				title: "New York Times",
-        // 				url: "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml"
-        // 			}
-        // 		],
-        // 		showSourceTitle: true,
-        // 		showPublishDate: true,
-        // 		broadcastNewsFeeds: true,
-        // 		broadcastNewsUpdates: true
-        // 	}
-        // },
-        {
-            module: "MMM-Cursor",
-            config: {
-                timeout: 1000
-            }
-        },
-        // {
-        //     module: "gpio",
-        //     config: {
-        //         mock: false
-        //     }
-        // },
-        {
-            module: "MMM-TouchButton",
-            position: "bottom center",
-            config: {
-                classes: "scale-2x",
-                buttons: [
-                    {
-                        name: "Solenoid_0",
-                        icon: "fa fa-toggle-off",
-                        notification: "CLOUD_UPDATE_MEDICATIONS",
-                        payload: {
-                            "cabinetId": "123e4567-e89b-12d3-a456-426614174000",
-                            "sessionTimestamp": "2024-02-08T14:30:00Z",
-                            "medications": [
-                                {
-                                    "ndc": 123,
-                                    "brand_name": "Amoxicillin",
-                                    "generic_name": "Amoxicillin",
-                                    "quantity": 30,
-                                    "tray": 1,
-                                    "schedule": {
-                                        "days": []
-                                    }
-                                },
-                                {
-                                    "ndc": 456,
-                                    "generic_name": "Ibuprofen",
-                                    "quantity": 15,
-                                    "tray": 1,
-                                    "schedule": {
-                                    }
-                                },
-                                {
-                                    "ndc": 789,
-                                    "name": "Loratadine",
-                                    "quantity": 10,
-                                    "tray": 1,
-                                    "schedule": {
-                                    }
-                                }
-                            ]
-                        }
-
-                    },
-                    {
-                        name: "Solenoid_1",
-                        icon: "fa fa-toggle-off",
-                        notification: "CLOUD_SEARCH_MEDICATIONS",
-                        payload: "71610-646"
-                    },
-                    {
-                        name: "Solenoid_2",
-                        icon: "fa fa-toggle-off",
-                        notification: "CLOUD_GET_MEDICATION",
-                        payload: "0e6d0c9f-7d92-6744-e063-6394a90a9fe6"
-                    },
-                    {
-                        name: "Solenoid_3",
-                        icon: "fa fa-toggle-off",
-                        notification: "GPIO_PIN_TOGGLE",
-                        payload: { pin: 3 }
-                    },
-                    {
-                        name: "Solenoid_4",
-                        icon: "fa fa-toggle-off",
-                        notification: "GPIO_PIN_TOGGLE",
-                        payload: { pin: 4 }
-                    },
-                    {
-                        name: "Solenoid_5",
-                        icon: "fa fa-toggle-off",
-                        notification: "GPIO_PIN_TOGGLE",
-                        payload: { pin: 5 }
-                    },
-                    {
-                        name: "Solenoid_6",
-                        icon: "fa fa-toggle-off",
-                        notification: "GPIO_PIN_TOGGLE",
-                        payload: { pin: 6 }
-                    },
-                    {
-                        name: "Solenoid_7",
-                        icon: "fa fa-toggle-off",
-                        notification: "GPIO_PIN_TOGGLE",
-                        payload: { pin: 7 }
-                    }
-                ]
-            }
-        },
-        {
-            module: "MMM-ViewNotifications",
-            position: "top_left",
-            header: "Notifications",
-            config: {
-                // See below for Configuration Options
-            }
-        }
-    ]
+	electronOptions: {
+		fullscreen: false
+	},
+	modules: [
+		{
+			module: "alert"
+		},
+		{
+			module: "clock",
+			position: "top_left"
+		},
+		{
+			module: "cloud"
+		},
+		{
+			module: "weather",
+			position: "top_right",
+			header: "Weather Forecast",
+			config: {
+				weatherProvider: "envcanada",
+				type: "forecast",
+				siteCode: "s0000707",
+				provCode: "ON",
+				location: "Oshawa, ON"
+			}
+		},
+		{
+			module: "Medication-Input",
+			position: "bottom_right",
+			config: {
+				text: "",
+			}
+			// header: "Medication Input"
+		},
+		{
+			module: "Medication-Management"
+		},
+		{
+			module: "Medication-Scheduler",
+			position: "top_right",
+		},
+		{
+			module: "Medication-Verification"
+		},
+		{
+			module: "Medication-Alarm",
+			position: "middle_center"
+		},
+		{
+			module: "MMM-Cursor",
+			config: {
+				timeout: 1000
+			}
+		},
+		{
+			module: "gpio",
+			config: {
+				mock: false
+			}
+		},
+		// {
+		//     module: "MMM-TouchButton",
+		//     position: "bottom center",
+		//     config: {
+		//         classes: "scale-2x",
+		//         buttons: [
+		//             {
+		//                 name: "Solenoid_0",
+		//                 icon: "fa fa-toggle-off",
+		//                 notification: "CLOUD_UPDATE_MEDICATIONS",
+		//                 payload: {
+		//                     "cabinetId": "123e4567-e89b-12d3-a456-426614174000",
+		//                     "sessionTimestamp": "2024-02-08T14:30:00Z",
+		//                     "medications": [
+		//                         {
+		//                             "ndc": 123,
+		//                             "brand_name": "Amoxicillin",
+		//                             "generic_name": "Amoxicillin",
+		//                             "quantity": 30,
+		//                             "tray": 1,
+		//                             "schedule": {
+		//                                 "days": []
+		//                             }
+		//                         },
+		//                         {
+		//                             "ndc": 456,
+		//                             "generic_name": "Ibuprofen",
+		//                             "quantity": 15,
+		//                             "tray": 1,
+		//                             "schedule": {
+		//                             }
+		//                         },
+		//                         {
+		//                             "ndc": 789,
+		//                             "name": "Loratadine",
+		//                             "quantity": 10,
+		//                             "tray": 1,
+		//                             "schedule": {
+		//                             }
+		//                         }
+		//                     ]
+		//                 }
+		//
+		//             },
+		//             {
+		//                 name: "Solenoid_1",
+		//                 icon: "fa fa-toggle-off",
+		//                 notification: "CLOUD_SEARCH_MEDICATIONS",
+		//                 payload: "71610-646"
+		//             },
+		//             {
+		//                 name: "Solenoid_2",
+		//                 icon: "fa fa-toggle-off",
+		//                 notification: "CLOUD_GET_MEDICATION",
+		//                 payload: "0e6d0c9f-7d92-6744-e063-6394a90a9fe6"
+		//             },
+		//             {
+		//                 name: "Solenoid_3",
+		//                 icon: "fa fa-toggle-off",
+		//                 notification: "GPIO_PIN_TOGGLE",
+		//                 payload: { pin: 3 }
+		//             },
+		//             {
+		//                 name: "Solenoid_4",
+		//                 icon: "fa fa-toggle-off",
+		//                 notification: "GPIO_PIN_TOGGLE",
+		//                 payload: { pin: 4 }
+		//             },
+		//             {
+		//                 name: "Solenoid_5",
+		//                 icon: "fa fa-toggle-off",
+		//                 notification: "GPIO_PIN_TOGGLE",
+		//                 payload: { pin: 5 }
+		//             },
+		//             {
+		//                 name: "Solenoid_6",
+		//                 icon: "fa fa-toggle-off",
+		//                 notification: "GPIO_PIN_TOGGLE",
+		//                 payload: { pin: 6 }
+		//             },
+		//             {
+		//                 name: "Solenoid_7",
+		//                 icon: "fa fa-toggle-off",
+		//                 notification: "GPIO_PIN_TOGGLE",
+		//                 payload: { pin: 7 }
+		//             }
+		//         ]
+		//     }
+		// },
+		{
+			module: "MMM-ViewNotifications",
+			position: "top_left",
+			config: {
+				text: "",
+			}
+		}
+	]
 };
 
 /*************** DO NOT EDIT THE LINE BELOW ***************/
