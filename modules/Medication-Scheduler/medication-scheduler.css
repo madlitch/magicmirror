@@ -11,8 +11,8 @@
   margin: 10px; /* Increase margin for better spacing */
 }
 .medication-select {
-  width: 400px; /* Adjust width for better visibility */
-  font-size: 40px; /* Adjust font size */
+  width: 350px; /* Adjust width for better visibility */
+  font-size: 32px; /* Adjust font size */
   border: 2px solid #4CAF50; /* Add border for better visibility */
   border-radius: 5px; /* Add border radius for rounded corners */
   padding: 10px; /* Adjust padding */
