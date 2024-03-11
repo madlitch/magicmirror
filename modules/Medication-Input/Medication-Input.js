@@ -1,5 +1,3 @@
-
-
 /* Magic Mirror
  * Module: Medication-Input
  *
@@ -10,7 +8,7 @@
 Module.register("Medication-Input", {
     defaults: {
         passcode: "1234", // Set your default passcode here
-        locked: true,
+        locked: true
     },
 
     start: function () {
@@ -32,31 +30,14 @@ Module.register("Medication-Input", {
             this.log(payload);
         } else if (notification === "CLOUD_UPDATE_MEDICATIONS_RESULT") {
             this.log(payload);
-        }
-
-        else if (notification === "UNLOCK_MEDICATION_INPUT") {
+        } else if (notification === "UNLOCK_MEDICATION_INPUT") {
             this.config.locked = false;
             this.updateDom();
         } else if (notification === "LOCK_MEDICATION_INPUT") {
             this.config.locked = true;
             this.updateDom();
         }
-
-        else if (notification === "KEYBOARD_INPUT" && payload.key === "medication-input") {
-            console.log(payload.message);
-            const passcodeInput = document.getElementById("passcode-value");
-            
-            // Ensure passcode input exists
-            if (passcodeInput) {
-                // Append the pressed key to the passcode input value
-                passcodeInput.value += payload.message;
-            }
-        }
-
-
-
     },
-
 
     log: function (data) {
         this.sendSocketNotification("LOG", data);
@@ -72,34 +53,27 @@ Module.register("Medication-Input", {
             option.textContent = `${medication.generic_name} (${medication.brand_name})`;
             brandSelect.appendChild(option);
         });
-
     },
 
     getStyles: function () {
         return ["Medication-Input.css"];
     },
 
-
-
     getDom: function () {
-
         const wrapper = document.createElement("div");
         wrapper.className = "medication-input";
 
-
         if (this.config.locked) {
-
             // Display passcode input field
             const passcodeInput = document.createElement("input");
             passcodeInput.type = "password";
             passcodeInput.placeholder = "Enter passcode";
             passcodeInput.id = "passcode-value";
             passcodeInput.className = "medication-select";
-            // Open the keyboard when the passcode input field is clicked
-            passcodeInput.addEventListener("click", () => {
-                this.openKeyboard();
-            });
             wrapper.appendChild(passcodeInput);
+
+            
+
             // Display unlock button
             const unlockButton = document.createElement("button");
             unlockButton.innerText = "Unlock";
@@ -108,7 +82,6 @@ Module.register("Medication-Input", {
                 const passcode = document.getElementById("passcode-value").value;
                 if (passcode === this.config.passcode) {
                     this.config.locked = false;
-
                     this.sendNotification("UNLOCK_MEDICATION_SCHEDULER");
                     this.updateDom();
                 }
@@ -144,11 +117,8 @@ Module.register("Medication-Input", {
             searchInput.setAttribute("type", "text");
             searchInput.setAttribute("placeholder", "Search Brand Name");
             searchInput.className = "medication-select";
-            searchInput.id = "searchInput-value";
             medicationContainer.appendChild(searchInput);
-
             
-
 
             // Select brand name
             const brandSelect = document.createElement("select");
@@ -158,8 +128,6 @@ Module.register("Medication-Input", {
             brandPlaceholderOption.textContent = "Select Brand Name";
             brandSelect.appendChild(brandPlaceholderOption);
             medicationContainer.appendChild(brandSelect);
-
-           
 
             // Add event listener for input event on search input
             searchInput.addEventListener("input", (event) => {
@@ -237,11 +205,5 @@ Module.register("Medication-Input", {
         return wrapper;
 
     },
-    // Function to open the keyboard
-    openKeyboard: function () {
-        this.sendNotification("KEYBOARD", { key: "medication-input", style: "numbers" });
-    },
-
-    
 
 });

@@ -21,22 +21,11 @@ Module.register("Medication-Scheduler", {
 
   notificationReceived: function (notification, payload) {
     if (notification === "UNLOCK_MEDICATION_SCHEDULER") {
-      this.config.locked = false;
-      this.updateDom();
+        this.config.locked = false;
+        this.updateDom();
     } else if (notification === "LOCK_MEDICATION_SCHEDULER") {
-      this.config.locked = true;
-      this.updateDom();
-    }
-
-    else if (notification === "KEYBOARD_INPUT" && payload.key === "scheduler-passcode") {
-      console.log(payload.message);
-      const passcodeInput = document.getElementById("passcode-input");
-
-      // Ensure passcode input exists
-      if (passcodeInput) {
-        // Append the pressed key to the passcode input value
-        passcodeInput.value += payload.message;
-      }
+        this.config.locked = true;
+        this.updateDom();
     }
   },
 
@@ -67,12 +56,8 @@ Module.register("Medication-Scheduler", {
       const passcodeInput = document.createElement("input");
       passcodeInput.type = "password";
       passcodeInput.placeholder = "Enter passcode";
-      passcodeInput.id = "passcode-input"; // Set the ID for easy selection
+      passcodeInput.id = "passcode-input";
       passcodeInput.className = "medication-select";
-      // Open the keyboard when the passcode input field receives focus
-      passcodeInput.addEventListener("focus", () => {
-        this.openKeyboardForPasscode();
-      });
       wrapper.appendChild(passcodeInput);
 
       // Display unlock button
@@ -235,9 +220,5 @@ Module.register("Medication-Scheduler", {
       'Saturday': 6,
     };
     return dayMap[dayName];
-  },
-
-  openKeyboardForPasscode: function() {
-    this.sendNotification("KEYBOARD", { key: "scheduler-passcode", style: "numbers" });
-},
+  }
 });
