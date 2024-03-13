@@ -8,16 +8,9 @@
  */
 
 Module.register("gpio", {
-	defaults: {
-		mock: false
-	},
 
 	start: function() {
-		if (this.config.mock) {
-			this.log("GPIO Loaded in MOCK mode");
-		} else {
-			this.sendSocketNotification(this.name + "SETUP");
-		}
+		this.sendSocketNotification(this.name + "SETUP");
 	},
 
 	log: function(data) {
@@ -25,18 +18,13 @@ Module.register("gpio", {
 	},
 
 	notificationReceived: function(notification, payload, sender) {
-		if (this.config.mock) {
-			if (notification === "GPIO_PIN_TOGGLE" || notification === "GPIO_PIN_WRITE") {
-				this.sendNotification("GPIO_MOCK_NOTIFICATION_RECEIVED", payload);
-				this.log("GPIO_MOCK_NOTIFICATION_RECEIVED");
-				this.log(payload);
-			}
-		} else {
-			if (notification === "GPIO_PIN_TOGGLE") {
-				this.sendSocketNotification(this.name + "PIN_TOGGLE", payload);
-			} else if (notification === "GPIO_PIN_WRITE") {
-				this.sendSocketNotification(this.name + "PIN_WRITE", payload);
-			}
+		if (notification === "GPIO_PIN_TOGGLE") {
+			this.sendSocketNotification(this.name + "PIN_TOGGLE", payload);
+		} else if (notification === "GPIO_PIN_WRITE") {
+			this.sendSocketNotification(this.name + "PIN_WRITE", payload);
+		}
+		else if (notification === "GPIO_PIN_CYCLE") {
+			this.sendSocketNotification(this.name + "PIN_CYCLE", payload);
 		}
 	},
 

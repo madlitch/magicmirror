@@ -10,7 +10,7 @@
 Module.register("Medication-Scheduler", {
   defaults: {
     passcode: "1234", // Set your default passcode here
-    locked: true
+    locked: false
   },
 
   start: function () {
@@ -20,13 +20,13 @@ Module.register("Medication-Scheduler", {
   },
 
   notificationReceived: function (notification, payload) {
-    if (notification === "UNLOCK_MEDICATION_SCHEDULER") {
-        this.config.locked = false;
-        this.updateDom();
-    } else if (notification === "LOCK_MEDICATION_SCHEDULER") {
-        this.config.locked = true;
-        this.updateDom();
-    }
+    // if (notification === "UNLOCK_MEDICATION_SCHEDULER") {
+    //     this.config.locked = false;
+    //     this.updateDom();
+    // } else if (notification === "LOCK_MEDICATION_SCHEDULER") {
+    //     this.config.locked = true;
+    //     this.updateDom();
+    // }
   },
 
   socketNotificationReceived: function (notification, payload) {
@@ -52,7 +52,7 @@ Module.register("Medication-Scheduler", {
     wrapper.className = "medication-scheduler";
 
     if (this.config.locked) {
-      
+
     }
     else {
 
