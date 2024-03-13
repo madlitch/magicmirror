@@ -10,7 +10,7 @@
 Module.register("Medication-Scheduler", {
   defaults: {
     passcode: "1234", // Set your default passcode here
-    locked: false
+    locked: true
   },
 
   start: function () {
@@ -19,15 +19,11 @@ Module.register("Medication-Scheduler", {
     this.sendSocketNotification("GET_MEDICATIONS");
   },
 
-  notificationReceived: function (notification, payload) {
-    // if (notification === "UNLOCK_MEDICATION_SCHEDULER") {
-    //     this.config.locked = false;
-    //     this.updateDom();
-    // } else if (notification === "LOCK_MEDICATION_SCHEDULER") {
-    //     this.config.locked = true;
-    //     this.updateDom();
-    // }
-  },
+  notificationReceived: function(notification, payload) {
+    if (notification === "MEDICATION_ADDED") {
+        this.updateMedicationOptions(payload); // Update medication dropdown with the new medication
+    }
+},
 
   socketNotificationReceived: function (notification, payload) {
     if (notification === "MEDICATION_DATA_FOUND") {
@@ -54,6 +50,7 @@ Module.register("Medication-Scheduler", {
 
 
 
+    this.updateDom();
 
     // Select medication ID input field
     const medicationIdInput = document.createElement("input");
@@ -167,7 +164,8 @@ Module.register("Medication-Scheduler", {
     medications.forEach(medication => {
       const option = document.createElement("option");
       option.value = medication.medication_id;
-      option.text = `${medication.brand_name} (${medication.generic_name})`;
+      //option.text = `${medication.brand_name} (${medication.generic_name})`;
+      option.text = `${medication.brand_name}`;
       medicationDropdown.appendChild(option);
     });
   },

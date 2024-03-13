@@ -166,6 +166,11 @@ Module.register("Medication-Input", {
 					cabinet_id: "b45569c2-c9d9-11ee-8491-029e9cf81533",
 					medications: [medicationData]
 				});
+
+				this.sendNotification("MEDICATION_ADDED", { // Send notification with updated medication data
+					medication_id: brandId,
+					brand_name: brandSelect.options[brandSelect.selectedIndex].textContent.split("(")[1].replace(")", "").trim()
+				});
 			});
 
 			medicationContainer.appendChild(scheduleButton);

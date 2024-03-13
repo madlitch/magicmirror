@@ -97,25 +97,11 @@ let config = {
 		{
 			module: "MMM-ModuleToggle",
 			config: {
-				hide: ["Medication-Input", "MMM-TouchButton", "MMM-ViewNotifications", "Medication-Scheduler"],
+				// hide: ["Medication-Input", "MMM-TouchButton", "MMM-ViewNotifications", "Medication-Scheduler"],
+				hide: ["Medication-Input", "MMM-TouchButton", "Medication-Scheduler"],
 				speed: 0
 			}
 		},
-		// {
-		// 	module: "MMM-TouchButton-Unlock",
-		// 	position: "bottom_right",
-		// 	config: {
-		// 		classes: "scale-4x",
-		// 		buttons: [
-		// 			{
-		// 				name: "Unlock",
-		// 				icon: "fluent:person-lock-24-filled",
-		// 				notification: "MODULE_TOGGLE",
-		// 				payload: { hide: ["MMM-TouchButton-Unlock"], show: ["Medication-Input", "MMM-TouchButton", "MMM-ViewNotifications", "MMM-TouchButton-Lock"], toggle:[] }
-		// 			},
-		// 		]
-		// 	}
-		// },
 		{
 			module: "MMM-TouchButton-Lock",
 			position: "bottom_right",
