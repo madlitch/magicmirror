@@ -82,7 +82,7 @@ Module.register("Medication-Input", {
 				if (passcode === this.config.passcode) {
 					this.config.locked = false;
 					// this.sendNotification("UNLOCK_MEDICATION_SCHEDULER");
-					this.sendNotification("MODULE_TOGGLE", { hide: [], show: ["MMM-TouchButton", "MMM-ViewNotifications", "Medication-Scheduler"], toggle: [] });
+					this.sendNotification("MODULE_TOGGLE", { hide: ["MMM-TouchButton-Lock"], show: ["MMM-TouchButton", "MMM-ViewNotifications", "Medication-Scheduler"], toggle: [] });
 					this.updateDom();
 				} else {
 					alert("Incorrect passcode");
@@ -99,7 +99,7 @@ Module.register("Medication-Input", {
 			for (let i = 1; i <= 7; i++) {
 				const option = document.createElement("option");
 				option.value = i;
-				option.textContent = `Pill Box ${i}`;
+				option.textContent = `Pill Box ${i}`
 				boxSelect.appendChild(option);
 			}
 			boxSelectContainer.appendChild(boxSelect);
@@ -195,7 +195,7 @@ Module.register("Medication-Input", {
 			lockButton.addEventListener("click", () => {
 				this.config.locked = true;
 				// this.sendNotification("LOCK_MEDICATION_SCHEDULER");
-				this.sendNotification("MODULE_TOGGLE", { hide: ["MMM-TouchButton", "MMM-ViewNotifications", "Medication-Scheduler"], show: [], toggle: [] });
+				this.sendNotification("MODULE_TOGGLE", { hide: ["MMM-TouchButton", "Medication-Input", "MMM-ViewNotifications", "Medication-Scheduler"], show: ["MMM-TouchButton-Lock"], toggle: [] });
 				this.updateDom();
 			});
 			wrapper.appendChild(lockButton);

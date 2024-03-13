@@ -37,8 +37,12 @@ let config = {
 	timeFormat: 24,
 	units: "metric",
 	electronOptions: {
-		fullscreen: false
+		fullscreen: false,
+		resizeable: false
 	},
+	electronSwitches: [
+		"force-renderer-accessibility"
+	],
 	modules: [
 		{
 			module: "alert"
@@ -90,16 +94,14 @@ let config = {
 				timeout: 50
 			}
 		},
-		{
-			module: "gpio",
-			config: {
-				mock: false
-			}
-		},
+		// {
+		// 	module: "gpio",
+		// },
 		{
 			module: "MMM-ModuleToggle",
 			config: {
-				hide: ["Medication-Input", "MMM-TouchButton", "MMM-ViewNotifications", "Medication-Scheduler"]
+				hide: ["Medication-Input", "MMM-TouchButton", "MMM-ViewNotifications", "Medication-Scheduler"],
+				speed: 0
 			}
 		},
 		// {
