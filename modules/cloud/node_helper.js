@@ -1,7 +1,8 @@
 const NodeHelper = require("node_helper");
 const axios = require('axios');
 
-const cloud_url = "http://0.0.0.0:8081";
+const cloud_url = "https://caretakerportal.com";
+// const cloud_url = "http://0.0.0.0:8081";
 
 const patient_id = "b6673aee-c9d8-11ee-8491-029e9cf81533";
 const cabinet_id = "b45569c2-c9d9-11ee-8491-029e9cf81533";
@@ -13,6 +14,7 @@ module.exports = NodeHelper.create({
             if (r.data === {message: 'pass!'}) {
                 console.log("Cloud Connection Successful");
             }
+            console.log("Cloud Connection Successful");
         }).catch(function (error) {
             console.log("Connection to server failed");
             console.log(error.cause);

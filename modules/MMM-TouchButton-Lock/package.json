@@ -1,0 +1,34 @@
+{
+  "name": "MMM-TouchButton",
+  "version": "0.0.6",
+  "description": "A MagicMirror² module to create touchable buttons displayed with icons that can be used to call scripts or send notifications.",
+  "main": "MMM-TouchButton",
+  "dependencies": {
+    "js-uuid": "latest",
+    "jsonpath-plus": "5.0.1",
+    "@iconify/iconify": "latest"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "MagicMirror",
+    "MM",
+    "touch",
+    "button",
+    "icon",
+    "notifications",
+    "scripts"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tom-Hirschberger/MMM-TouchButton.git"
+  },
+  "author": "Thomas Hirschberger",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Tom-Hirschberger/MMM-TouchButton.git/issues"
+  },
+  "homepage": "https://github.com/Tom-Hirschberger/MMM-TouchButton.git/#readme"
+}

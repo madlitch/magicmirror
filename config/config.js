@@ -12,7 +12,7 @@
  * see https://docs.magicmirror.builders/configuration/introduction.html#enviromnent-variables
  */
 let config = {
-	address: "0.0.0.0",	// Address to listen on, can be:
+	address: "localhost",	// Address to listen on, can be:
 	// - "localhost", "127.0.0.1", "::1" to listen on loopback interface
 	// - another specific IPv4/6 to listen on a specific interface
 	// - "0.0.0.0", "::" to listen on any interface
@@ -37,8 +37,10 @@ let config = {
 	timeFormat: 24,
 	units: "metric",
 	electronOptions: {
-		fullscreen: false
+		fullscreen: false,
+		// resizeable: false
 	},
+
 	modules: [
 		{
 			module: "alert"
@@ -64,9 +66,9 @@ let config = {
 		},
 		{
 			module: "Medication-Input",
-			position: "bottom_right",
+			position: "lower_third",
 			config: {
-				text: "",
+				text: ""
 			}
 			// header: "Medication Input"
 		},
@@ -75,7 +77,7 @@ let config = {
 		},
 		{
 			module: "Medication-Scheduler",
-			position: "top_right",
+			position: "top_right"
 		},
 		{
 			module: "Medication-Verification"
@@ -87,109 +89,112 @@ let config = {
 		{
 			module: "MMM-Cursor",
 			config: {
-				timeout: 1000
-			}
-		},
-		{
-			module: "gpio",
-			config: {
-				mock: false
+				timeout: 50
 			}
 		},
 		// {
-		//     module: "MMM-TouchButton",
-		//     position: "bottom center",
-		//     config: {
-		//         classes: "scale-2x",
-		//         buttons: [
-		//             {
-		//                 name: "Solenoid_0",
-		//                 icon: "fa fa-toggle-off",
-		//                 notification: "CLOUD_UPDATE_MEDICATIONS",
-		//                 payload: {
-		//                     "cabinetId": "123e4567-e89b-12d3-a456-426614174000",
-		//                     "sessionTimestamp": "2024-02-08T14:30:00Z",
-		//                     "medications": [
-		//                         {
-		//                             "ndc": 123,
-		//                             "brand_name": "Amoxicillin",
-		//                             "generic_name": "Amoxicillin",
-		//                             "quantity": 30,
-		//                             "tray": 1,
-		//                             "schedule": {
-		//                                 "days": []
-		//                             }
-		//                         },
-		//                         {
-		//                             "ndc": 456,
-		//                             "generic_name": "Ibuprofen",
-		//                             "quantity": 15,
-		//                             "tray": 1,
-		//                             "schedule": {
-		//                             }
-		//                         },
-		//                         {
-		//                             "ndc": 789,
-		//                             "name": "Loratadine",
-		//                             "quantity": 10,
-		//                             "tray": 1,
-		//                             "schedule": {
-		//                             }
-		//                         }
-		//                     ]
-		//                 }
-		//
-		//             },
-		//             {
-		//                 name: "Solenoid_1",
-		//                 icon: "fa fa-toggle-off",
-		//                 notification: "CLOUD_SEARCH_MEDICATIONS",
-		//                 payload: "71610-646"
-		//             },
-		//             {
-		//                 name: "Solenoid_2",
-		//                 icon: "fa fa-toggle-off",
-		//                 notification: "CLOUD_GET_MEDICATION",
-		//                 payload: "0e6d0c9f-7d92-6744-e063-6394a90a9fe6"
-		//             },
-		//             {
-		//                 name: "Solenoid_3",
-		//                 icon: "fa fa-toggle-off",
-		//                 notification: "GPIO_PIN_TOGGLE",
-		//                 payload: { pin: 3 }
-		//             },
-		//             {
-		//                 name: "Solenoid_4",
-		//                 icon: "fa fa-toggle-off",
-		//                 notification: "GPIO_PIN_TOGGLE",
-		//                 payload: { pin: 4 }
-		//             },
-		//             {
-		//                 name: "Solenoid_5",
-		//                 icon: "fa fa-toggle-off",
-		//                 notification: "GPIO_PIN_TOGGLE",
-		//                 payload: { pin: 5 }
-		//             },
-		//             {
-		//                 name: "Solenoid_6",
-		//                 icon: "fa fa-toggle-off",
-		//                 notification: "GPIO_PIN_TOGGLE",
-		//                 payload: { pin: 6 }
-		//             },
-		//             {
-		//                 name: "Solenoid_7",
-		//                 icon: "fa fa-toggle-off",
-		//                 notification: "GPIO_PIN_TOGGLE",
-		//                 payload: { pin: 7 }
-		//             }
-		//         ]
-		//     }
+		// 	module: "gpio",
 		// },
+		{
+			module: "MMM-ModuleToggle",
+			config: {
+				hide: ["Medication-Input", "MMM-TouchButton", "MMM-ViewNotifications", "Medication-Scheduler"],
+				speed: 0
+			}
+		},
+		// {
+		// 	module: "MMM-TouchButton-Unlock",
+		// 	position: "bottom_right",
+		// 	config: {
+		// 		classes: "scale-4x",
+		// 		buttons: [
+		// 			{
+		// 				name: "Unlock",
+		// 				icon: "fluent:person-lock-24-filled",
+		// 				notification: "MODULE_TOGGLE",
+		// 				payload: { hide: ["MMM-TouchButton-Unlock"], show: ["Medication-Input", "MMM-TouchButton", "MMM-ViewNotifications", "MMM-TouchButton-Lock"], toggle:[] }
+		// 			},
+		// 		]
+		// 	}
+		// },
+		{
+			module: "MMM-TouchButton-Lock",
+			position: "bottom_right",
+			config: {
+				classes: "scale-4x",
+				buttons: [
+					{
+						name: "Unlock",
+						icon: "fluent:person-lock-24-filled",
+						notification: "MODULE_TOGGLE",
+						// payload: { hide: ["Medication-Input", "MMM-TouchButton", "MMM-ViewNotifications",  "MMM-TouchButton-Lock"], show: ["MMM-TouchButton-Unlock"], toggle:[] }
+						payload: { hide: [], show: [], toggle:["Medication-Input", "MMM-ViewNotifications"] }
+					},
+				]
+			}
+		},
+		{
+			module: "MMM-TouchButton",
+			position: "bottom_center",
+			config: {
+				classes: "scale-3x",
+				buttons: [
+					{
+						name: "Solenoid_1",
+						icon: "icon-park-solid:one-key",
+						notification: "GPIO_PIN_CYCLE",
+						payload: { pin: 1 }
+					},
+					{
+						name: "Solenoid_2",
+						icon: "icon-park-solid:two-key",
+						notification: "GPIO_PIN_CYCLE",
+						payload: { pin: 2 }
+					},
+					{
+						name: "Solenoid_3",
+						icon: "icon-park-solid:three-key",
+						notification: "GPIO_PIN_CYCLE",
+						payload: { pin: 3 }
+					},
+					{
+						name: "Solenoid_4",
+						icon: "icon-park-solid:four-key",
+						notification: "GPIO_PIN_CYCLE",
+						payload: { pin: 4 }
+					},
+					{
+						name: "Solenoid_5",
+						icon: "icon-park-solid:five-key",
+						notification: "GPIO_PIN_CYCLE",
+						payload: { pin: 5 }
+					},
+					{
+						name: "Solenoid_6",
+						icon: "icon-park-solid:six-key",
+						notification: "GPIO_PIN_CYCLE",
+						payload: { pin: 6 }
+					},
+					{
+						name: "Solenoid_7",
+						icon: "icon-park-solid:seven-key",
+						notification: "GPIO_PIN_CYCLE",
+						payload: { pin: 7 }
+					},
+					{
+						name: "Solenoid_8",
+						icon: "mingcute:light-fill",
+						notification: "GPIO_PIN_TOGGLE",
+						payload: { pin: 8 }
+					}
+				]
+			}
+		},
 		{
 			module: "MMM-ViewNotifications",
 			position: "top_left",
 			config: {
-				text: "",
+				text: ""
 			}
 		}
 	]

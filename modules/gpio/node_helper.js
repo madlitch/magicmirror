@@ -44,28 +44,40 @@ class GPIOPin {
 
 let pins = [];
 
+function sleep(ms) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 module.exports = NodeHelper.create({
 
 	start: function () {
-		pins.push(new GPIOPin(0, 16)); //GPIO 23
-		pins.push(new GPIOPin(1, 11)); //GPIO 17
-		pins.push(new GPIOPin(2, 13)); //GPIO 27
-		pins.push(new GPIOPin(3, 15)); //GPIO 22
-		pins.push(new GPIOPin(4, 29)); //GPIO 5
-		pins.push(new GPIOPin(5, 31)); //GPIO 6
-		pins.push(new GPIOPin(6, 36)); //GPIO 16
-		pins.push(new GPIOPin(7, 37)); //GP
+		pins.push(new GPIOPin(1, 16)); //GPIO 23
+		pins.push(new GPIOPin(2, 11)); //GPIO 17
+		pins.push(new GPIOPin(3, 13)); //GPIO 27
+		pins.push(new GPIOPin(4, 15)); //GPIO 22
+		pins.push(new GPIOPin(5, 29)); //GPIO 5
+		pins.push(new GPIOPin(6, 31)); //GPIO 6
+		pins.push(new GPIOPin(7, 36)); //GPIO 16
+		pins.push(new GPIOPin(8, 37)); //GP
 	},
 
 	socketNotificationReceived: function(notification, payload) {
 
 		if (notification === this.name + "PIN_WRITE") {
-			pins[payload.pin].write(payload.state, (pl) => {
+			pins[payload.pin - 1].write(payload.state, (pl) => {
 				this.sendSocketNotification(this.name + "WRITE_SUCCESS", pl);
 			});
 		} else if (notification === this.name + "PIN_TOGGLE") {
-			pins[payload.pin].write(!pins[payload.pin].state, (pl) => {
-				this.sendSocketNotification(this.name + "WRITE_SUCCESS", pl);
+			pins[payload.pin - 1].write(!pins[payload.pin - 1].state, (pl) => {
+				this.sendSocketNotification(this.name + "TOGGLE_SUCCESS", pl);
+			});
+		} else if (notification === this.name + "PIN_CYCLE") {
+			pins[payload.pin - 1].write(true, (pl) => {
+				sleep(200).then(() => {
+					pins[payload.pin -1].write(false, (pl) => {
+						this.sendSocketNotification(this.name + "CYCLE_SUCCESS", pl);
+					});
+				});
 			});
 		}
 
