@@ -94,7 +94,7 @@ Module.register("Medication-Scheduler", {
       timesSelect.size = 7;
       // Create options for all hours and minutes
       for (let hours = 0; hours <= 23; hours++) {
-        for (let minutes = 0; minutes < 60; minutes += 30) {
+        for (let minutes = 0; minutes < 60; minutes += 15) {
           const formattedTime = `${(hours < 10 ? '0' : '') + hours}:${(minutes === 0 ? '00' : minutes)}`;
           const option = document.createElement("option");
           option.value = formattedTime;
