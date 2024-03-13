@@ -38,9 +38,8 @@ let config = {
 	units: "metric",
 	electronOptions: {
 		fullscreen: false,
-		// resizeable: false
+		resizeable: false
 	},
-
 	modules: [
 		{
 			module: "alert"
@@ -66,7 +65,7 @@ let config = {
 		},
 		{
 			module: "Medication-Input",
-			position: "lower_third",
+			position: "middle_center",
 			config: {
 				text: ""
 			}
@@ -77,7 +76,7 @@ let config = {
 		},
 		{
 			module: "Medication-Scheduler",
-			position: "top_right"
+			position: "middle_center"
 		},
 		{
 			module: "Medication-Verification"

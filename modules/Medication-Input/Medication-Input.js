@@ -11,12 +11,12 @@ Module.register("Medication-Input", {
 		locked: true
 	},
 
-	start: function() {
+	start: function () {
 		Log.info("Medication-Input module started...");
 		this.sendSocketNotification("MEDICATION_INTAKE_STARTED");
 	},
 
-	socketNotificationReceived: function(notification, payload) {
+	socketNotificationReceived: function (notification, payload) {
 		if (notification === "MEDICATION_DATA_FOUND") {
 			this.medicationData = payload.medicationData;
 			this.sendDataToNodeHelper(); // Call function to send data to node helper
@@ -24,7 +24,7 @@ Module.register("Medication-Input", {
 		}
 	},
 
-	notificationReceived: function(notification, payload) {
+	notificationReceived: function (notification, payload) {
 		if (notification === "CLOUD_SEARCH_MEDICATIONS_RESULT") {
 			this.populateDropdown(payload); // Populate the dropdown with the search results
 			this.log(payload);
@@ -39,11 +39,11 @@ Module.register("Medication-Input", {
 		}
 	},
 
-	log: function(data) {
+	log: function (data) {
 		this.sendSocketNotification("LOG", data);
 	},
 
-	populateDropdown: function(searchResults) {
+	populateDropdown: function (searchResults) {
 		const brandSelect = document.querySelector(".brand-select");
 		brandSelect.innerHTML = ""; // Clear existing options
 
@@ -55,11 +55,11 @@ Module.register("Medication-Input", {
 		});
 	},
 
-	getStyles: function() {
+	getStyles: function () {
 		return ["Medication-Input.css"];
 	},
 
-	getDom: function() {
+	getDom: function () {
 		const wrapper = document.createElement("div");
 		wrapper.className = "medication-input";
 
@@ -69,9 +69,8 @@ Module.register("Medication-Input", {
 			passcodeInput.type = "password";
 			passcodeInput.placeholder = "Enter passcode";
 			passcodeInput.id = "passcode-value";
-			passcodeInput.className = "medication-select";
+			passcodeInput.className = "medication-select2";
 			wrapper.appendChild(passcodeInput);
-
 
 			// Display unlock button
 			const unlockButton = document.createElement("button");
@@ -81,7 +80,6 @@ Module.register("Medication-Input", {
 				const passcode = document.getElementById("passcode-value").value;
 				if (passcode === this.config.passcode) {
 					this.config.locked = false;
-					// this.sendNotification("UNLOCK_MEDICATION_SCHEDULER");
 					this.sendNotification("MODULE_TOGGLE", { hide: ["MMM-TouchButton-Lock"], show: ["MMM-TouchButton", "MMM-ViewNotifications", "Medication-Scheduler"], toggle: [] });
 					this.updateDom();
 				} else {
@@ -90,21 +88,6 @@ Module.register("Medication-Input", {
 			});
 			wrapper.appendChild(unlockButton);
 		} else {
-			// Pill box selection
-			const boxSelectContainer = document.createElement("div");
-			boxSelectContainer.className = "medication-container";
-
-			const boxSelect = document.createElement("select");
-			boxSelect.className = "box-select";
-			for (let i = 1; i <= 7; i++) {
-				const option = document.createElement("option");
-				option.value = i;
-				option.textContent = `Pill Box ${i}`
-				boxSelect.appendChild(option);
-			}
-			boxSelectContainer.appendChild(boxSelect);
-			wrapper.appendChild(boxSelectContainer);
-
 			// Medication container
 			const medicationContainer = document.createElement("div");
 			medicationContainer.className = "medication-container";
@@ -113,9 +96,8 @@ Module.register("Medication-Input", {
 			const searchInput = document.createElement("input");
 			searchInput.setAttribute("type", "text");
 			searchInput.setAttribute("placeholder", "Search Brand Name");
-			searchInput.className = "medication-select";
+			searchInput.className = "medication-select2";
 			medicationContainer.appendChild(searchInput);
-
 
 			// Select brand name
 			const brandSelect = document.createElement("select");
@@ -130,7 +112,6 @@ Module.register("Medication-Input", {
 			searchInput.addEventListener("input", (event) => {
 				const searchTerm = event.target.value.trim();
 				if (searchTerm.length > 0) {
-					// If the input is not empty, send a socket notification to start medication search
 					this.sendNotification("CLOUD_SEARCH_MEDICATIONS", searchTerm);
 				}
 			});
@@ -140,8 +121,19 @@ Module.register("Medication-Input", {
 			quantityInput.setAttribute("type", "number");
 			quantityInput.setAttribute("placeholder", "Enter Quantity");
 			quantityInput.setAttribute("min", "1"); // Set the minimum value to 1
-			quantityInput.className = "medication-select";
+			quantityInput.className = "medication-select2";
 			medicationContainer.appendChild(quantityInput);
+
+			// Pill box selection
+			const boxSelect = document.createElement("select");
+			boxSelect.className = "box-select";
+			for (let i = 1; i <= 7; i++) {
+				const option = document.createElement("option");
+				option.value = i;
+				option.textContent = `Pill Box ${i}`
+				boxSelect.appendChild(option);
+			}
+			medicationContainer.appendChild(boxSelect);
 
 			// Schedule button
 			const scheduleButton = document.createElement("button");
@@ -152,30 +144,23 @@ Module.register("Medication-Input", {
 				const quantityValue = Math.max(1, +quantityInput.value); // Ensure quantity is at least 1
 				const selectedBox = boxSelect.value;
 
-				// Prepare medication data object
 				const medicines = {
 					medication_id: brandId,
 					box: selectedBox,
 					quantity: quantityValue,
-					generic_name: brandSelect.options[brandSelect.selectedIndex].textContent.split("(")[0].trim(), // Extract generic name from dropdown option
-					brand_name: brandSelect.options[brandSelect.selectedIndex].textContent.split("(")[1].replace(")", "").trim() // Extract brand name from dropdown option
+					generic_name: brandSelect.options[brandSelect.selectedIndex].textContent.split("(")[0].trim(),
+					brand_name: brandSelect.options[brandSelect.selectedIndex].textContent.split("(")[1].replace(")", "").trim()
 				};
 
 				this.sendNotification("ADD_MEDICATIONS", medicines);
-				this.log(medicines);
-
-				// Send medication data to the Node Helper
 				this.sendSocketNotification("SAVE_PATIENT_MEDICATION", medicines);
 
-				// Prepare medication data object
 				const medicationData = {
 					medication_id: brandId,
 					box: selectedBox,
 					quantity: quantityValue
 				};
 
-
-				// Send medication data to the cloud
 				this.sendNotification("CLOUD_UPDATE_MEDICATIONS", {
 					patient_id: "b6673aee-c9d8-11ee-8491-029e9cf81533",
 					cabinet_id: "b45569c2-c9d9-11ee-8491-029e9cf81533",
@@ -183,9 +168,7 @@ Module.register("Medication-Input", {
 				});
 			});
 
-
 			medicationContainer.appendChild(scheduleButton);
-
 			wrapper.appendChild(medicationContainer);
 
 			// Lock button
@@ -194,14 +177,14 @@ Module.register("Medication-Input", {
 			lockButton.className = "medication-button";
 			lockButton.addEventListener("click", () => {
 				this.config.locked = true;
-				// this.sendNotification("LOCK_MEDICATION_SCHEDULER");
 				this.sendNotification("MODULE_TOGGLE", { hide: ["MMM-TouchButton", "Medication-Input", "MMM-ViewNotifications", "Medication-Scheduler"], show: ["MMM-TouchButton-Lock"], toggle: [] });
 				this.updateDom();
 			});
+
 			wrapper.appendChild(lockButton);
 		}
 		return wrapper;
-
 	}
+
 
 });

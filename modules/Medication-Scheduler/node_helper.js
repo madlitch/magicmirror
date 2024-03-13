@@ -7,10 +7,12 @@
 
 const NodeHelper = require("node_helper");
 const sqlite3 = require("sqlite3").verbose();
+let db;
 
 module.exports = NodeHelper.create({
   start: function () {
     console.log("Medication-Scheduler helper started...");
+    db = new sqlite3.Database("modules/Medication-Management/medications.db");
   },
 
   socketNotificationReceived: function (notification, payload) {
@@ -55,7 +57,17 @@ module.exports = NodeHelper.create({
 
   scheduleMedication: function ({ medication_id, days, times }) {
     // Connect to SQLite database
-    const db = new sqlite3.Database("modules/Medication-Management/medications.db");
+    //const db = new sqlite3.Database("modules/Medication-Management/medications.db");
+
+    // Create medication_schedule table if not exists
+    db.run(`CREATE TABLE IF NOT EXISTS medication_schedule (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      medication_id TEXT,
+      brand_name TEXT,
+      generic_name TEXT,
+      day TEXT,
+      time TEXT
+    )`);
 
     // Retrieve brand name and generic name from medications table based on the entered medication ID
     db.get(
@@ -68,15 +80,7 @@ module.exports = NodeHelper.create({
           if (row) {
             const { brand_name, generic_name } = row;
 
-            // Create medication_schedule table if not exists
-            db.run(`CREATE TABLE IF NOT EXISTS medication_schedule (
-              id INTEGER PRIMARY KEY AUTOINCREMENT,
-              medication_id TEXT,
-              brand_name TEXT,
-              generic_name TEXT,
-              day TEXT,
-              time TEXT
-            )`);
+            
 
             // Check if the schedule already exists
             const existingScheduleQuery =
@@ -113,13 +117,11 @@ module.exports = NodeHelper.create({
       }
     );
 
-    // Close the database connection
-    db.close();
   },
 
   deleteSchedule: function ({ medication_id, days, times }) {
     // Connect to SQLite database
-    const db = new sqlite3.Database("modules/Medication-Management/medications.db");
+    //const db = new sqlite3.Database("modules/Medication-Management/medications.db");
 
     // Delete schedules for the specified medication ID, day, and time
     db.run(
@@ -134,13 +136,12 @@ module.exports = NodeHelper.create({
       }
     );
 
-    // Close the database connection
-    db.close();
+   
   },
 
   searchMedication: function () {
     // Connect to SQLite database
-    const db = new sqlite3.Database("modules/Medication-Management/medications.db");
+    //const db = new sqlite3.Database("modules/Medication-Management/medications.db");
 
     // Search for medications
     db.all(
@@ -155,7 +156,6 @@ module.exports = NodeHelper.create({
       }
     );
 
-    // Close the database connection
-    db.close();
+   
   }
 });

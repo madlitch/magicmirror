@@ -1,18 +1,18 @@
 /* Medication-Scheduler.css */
 .medication-scheduler {
-  display: inline-block;
+  display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.medication-input,
+.medication-input2,
 .medication-select,
 .medication-button {
   margin: 10px; /* Increase margin for better spacing */
 }
 .medication-select {
-  width: 250px;
-  font-size: 24px; /* Adjust font size */
+  width: 350px; /* Adjust width for better visibility */
+  font-size: 32px; /* Adjust font size */
   border: 2px solid #4CAF50; /* Add border for better visibility */
   border-radius: 5px; /* Add border radius for rounded corners */
   padding: 10px; /* Adjust padding */
@@ -23,12 +23,12 @@
   background-color: #4CAF50; /* Add color to buttons */
   border: none;
   color: white;
-  padding: 16px 32px; /* Increase padding for bigger buttons */
+  padding: 20px 40px; /* Increase padding for bigger buttons */
   text-align: center;
   text-decoration: none;
   display: inline-block;
   font-family: Tahoma, sans-serif;
-  font-size: 24px; /* Increase font size for bigger buttons */
+  font-size: 32px; /* Increase font size for bigger buttons */
   cursor: pointer;
   border-radius: 5px; /* Add border radius for rounded corners */
   transition-duration: 0.4s; /* Add transition for smooth hover effect */
