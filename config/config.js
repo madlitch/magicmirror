@@ -38,11 +38,9 @@ let config = {
 	units: "metric",
 	electronOptions: {
 		fullscreen: false,
-		resizeable: false
+		// resizeable: false
 	},
-	electronSwitches: [
-		"force-renderer-accessibility"
-	],
+
 	modules: [
 		{
 			module: "alert"
