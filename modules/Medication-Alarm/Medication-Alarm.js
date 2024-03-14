@@ -108,7 +108,7 @@ Module.register("Medication-Alarm", {
         this.stopAlarm();
         this.sendNotification("ALARM_STOPPED");
 
-        this.sendNotification("MODULE_TOGGLE", { hide: [], show: ["clock", "weather", "MMM-TouchButton","MMM-TouchButton-Lock","ViewNotifications"], toggle: [] })
+        this.sendNotification("MODULE_TOGGLE", { hide: [], show: ["clock", "weather", "MMM-TouchButton-Lock"], toggle: [] })
       });
 
       wrapper.appendChild(stopButton);
