@@ -21,9 +21,13 @@ Module.register("Medication-Scheduler", {
 
   notificationReceived: function(notification, payload) {
     if (notification === "MEDICATION_ADDED") {
-        this.updateMedicationOptions(payload); // Update medication dropdown with the new medication
+      console.log("Payload received:", payload);
+      this.updateMedicationOptions(payload);
     }
-},
+  },
+  
+  
+
 
   socketNotificationReceived: function (notification, payload) {
     if (notification === "MEDICATION_DATA_FOUND") {
@@ -44,13 +48,8 @@ Module.register("Medication-Scheduler", {
   },
 
   getDom: function () {
-
     const wrapper = document.createElement("div");
     wrapper.className = "medication-scheduler";
-
-
-
-    this.updateDom();
 
     // Select medication ID input field
     const medicationIdInput = document.createElement("input");
@@ -62,7 +61,7 @@ Module.register("Medication-Scheduler", {
     const medicationDropdown = document.createElement("select");
     medicationDropdown.className = "medication-select";
     medicationDropdown.addEventListener("change", () => {
-      this.updateMedicationOptions();
+      this.updateMedicationOptions(this.payload);
       // Set the value of the medication ID input field to the selected medication's ID
       medicationIdInput.value = medicationDropdown.value;
     });
@@ -99,9 +98,6 @@ Module.register("Medication-Scheduler", {
     }
     wrapper.appendChild(timesSelect);
 
-
-    wrapper.appendChild(timesSelect);
-
     // Schedule button
     const scheduleButton = document.createElement("button");
     scheduleButton.innerText = "Schedule Medication";
@@ -111,9 +107,9 @@ Module.register("Medication-Scheduler", {
       const selectedDays = Array.from(daysSelect.selectedOptions).map((option) => option.value);
       const selectedTimes = Array.from(timesSelect.selectedOptions).map((option) => option.value);
 
-
       this.sendSocketNotification("SCHEDULE_MEDICATION", { medication_id: medicationIdValue, days: selectedDays, times: selectedTimes });
-      //Prepare medication data objects for each day-time combination
+
+      // Prepare medication data objects for each day-time combination
       const medicationData = [];
       selectedDays.forEach(day => {
         selectedTimes.forEach(time => {
@@ -132,10 +128,7 @@ Module.register("Medication-Scheduler", {
         medications: medicationData
       });
       this.log(medicationData);
-
-
     });
-
     wrapper.appendChild(scheduleButton);
 
     // Delete schedule button
@@ -150,26 +143,33 @@ Module.register("Medication-Scheduler", {
     });
     wrapper.appendChild(deleteButton);
 
-
-
     return wrapper;
-
   },
 
   updateMedicationOptions: function (medications) {
     const medicationDropdown = document.querySelector(".medication-select");
-    // // Clear existing options
-    // medicationDropdown.innerHTML = '';
-    // // Add new options
-    medications.forEach(medication => {
+  
+    // Check if medications is an array or a single medication object
+    if (Array.isArray(medications)) {
+      // Iterate over each medication in the array
+      medications.forEach(medication => {
+        const option = document.createElement("option");
+        option.value = medication.medication_id;
+        option.text = medication.brand_name ? medication.brand_name : 'Unknown'; // Provide a default value if brand_name is undefined
+        medicationDropdown.appendChild(option);
+      });
+    } else if (medications && typeof medications === 'object') {
+      // Handle single medication object
       const option = document.createElement("option");
-      option.value = medication.medication_id;
-      //option.text = `${medication.brand_name} (${medication.generic_name})`;
-      option.text = `${medication.brand_name}`;
+      option.value = medications.medication_id;
+      option.text = medications.brand_name ? medications.brand_name : 'Unknown'; // Provide a default value if brand_name is undefined
       medicationDropdown.appendChild(option);
-    });
+    } else {
+      console.error("Invalid payload format:", medications);
+    }
   },
-
+  
+  
 
   // Helper function to convert day name to number (0 for Sunday, 1 for Monday, etc.)
   convertDayToNumber: function (dayName) {
