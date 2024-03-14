@@ -99,7 +99,7 @@ Module.register("Medication-Alarm", {
 
       const stopButton = document.createElement("button");
       stopButton.className = "medication-alarm button";
-      stopButton.innerHTML = "Stop I Am Taking My Pill!!";
+      stopButton.innerHTML = "Ready to take my pills";
       stopButton.addEventListener("click", () => {
         while (this.notificationsWrapper.firstChild) {
           this.notificationsWrapper.removeChild(this.notificationsWrapper.firstChild);
