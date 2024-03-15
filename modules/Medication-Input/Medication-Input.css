@@ -62,3 +62,13 @@
 .box-select {
   font-size: 24px; /* Adjust font size */
 }
+
+.passcode-container {
+  position: relative;
+}
+
+.toggle-password {
+
+  font-size: 1.5em; /* Adjust the size as needed */
+}
+

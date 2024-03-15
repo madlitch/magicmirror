@@ -19,14 +19,14 @@ Module.register("Medication-Scheduler", {
     this.sendSocketNotification("GET_MEDICATIONS");
   },
 
-  notificationReceived: function(notification, payload) {
+  notificationReceived: function (notification, payload) {
     if (notification === "MEDICATION_ADDED") {
       console.log("Payload received:", payload);
       this.updateMedicationOptions(payload);
     }
   },
-  
-  
+
+
 
 
   socketNotificationReceived: function (notification, payload) {
@@ -148,28 +148,49 @@ Module.register("Medication-Scheduler", {
 
   updateMedicationOptions: function (medications) {
     const medicationDropdown = document.querySelector(".medication-select");
-  
+
+    // Clear existing options before populating the dropdown
+    medicationDropdown.innerHTML = "";
+
     // Check if medications is an array or a single medication object
     if (Array.isArray(medications)) {
       // Iterate over each medication in the array
       medications.forEach(medication => {
         const option = document.createElement("option");
         option.value = medication.medication_id;
-        option.text = medication.brand_name ? medication.brand_name : 'Unknown'; // Provide a default value if brand_name is undefined
+
+        // Truncate long medication names if they exceed a certain length
+        const maxNameLength = 25; // Define the maximum length for medication names
+        const displayName = medication.brand_name ?
+          (medication.brand_name.length > maxNameLength ?
+            `${medication.brand_name.substring(0, maxNameLength)}...` :
+            medication.brand_name) :
+          'Unknown'; // Provide a default value if brand_name is undefined
+
+        option.text = displayName;
         medicationDropdown.appendChild(option);
       });
     } else if (medications && typeof medications === 'object') {
       // Handle single medication object
       const option = document.createElement("option");
       option.value = medications.medication_id;
-      option.text = medications.brand_name ? medications.brand_name : 'Unknown'; // Provide a default value if brand_name is undefined
+
+      // Truncate long medication names if they exceed a certain length
+      const maxNameLength = 25; // Define the maximum length for medication names
+      const displayName = medications.brand_name ?
+        (medications.brand_name.length > maxNameLength ?
+          `${medications.brand_name.substring(0, maxNameLength)}...` :
+          medications.brand_name) :
+        'Unknown'; // Provide a default value if brand_name is undefined
+
+      option.text = displayName;
       medicationDropdown.appendChild(option);
     } else {
       console.error("Invalid payload format:", medications);
     }
   },
-  
-  
+
+
 
   // Helper function to convert day name to number (0 for Sunday, 1 for Monday, etc.)
   convertDayToNumber: function (dayName) {

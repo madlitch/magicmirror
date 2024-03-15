@@ -50,10 +50,18 @@ Module.register("Medication-Input", {
 		searchResults.forEach((medication) => {
 			const option = document.createElement("option");
 			option.value = medication.id;
-			option.textContent = `${medication.generic_name} (${medication.brand_name})`;
+
+			// Truncate long medication names if they exceed a certain length
+			const maxNameLength = 25; // Define the maximum length for medication names
+			const displayName = medication.generic_name.length > maxNameLength ?
+				`${medication.generic_name.substring(0, maxNameLength)}...` :
+				medication.generic_name;
+
+			option.textContent = `${displayName} (${medication.brand_name})`;
 			brandSelect.appendChild(option);
 		});
 	},
+
 
 	getStyles: function () {
 		return ["Medication-Input.css"];
@@ -71,6 +79,17 @@ Module.register("Medication-Input", {
 			passcodeInput.id = "passcode-value";
 			passcodeInput.className = "medication-select2";
 			wrapper.appendChild(passcodeInput);
+
+			// Toggle password visibility icon
+			const toggleVisibilityIcon = document.createElement("i");
+			toggleVisibilityIcon.className = "fas fa-eye-slash toggle-password";
+			toggleVisibilityIcon.addEventListener("click", () => {
+				const passcodeInput = document.getElementById("passcode-value");
+				passcodeInput.type = passcodeInput.type === "password" ? "text" : "password";
+				toggleVisibilityIcon.classList.toggle("fa-eye-slash");
+				toggleVisibilityIcon.classList.toggle("fa-eye");
+			});
+			wrapper.appendChild(toggleVisibilityIcon);
 
 			// Display unlock button
 			const unlockButton = document.createElement("button");
