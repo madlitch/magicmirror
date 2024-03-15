@@ -174,6 +174,17 @@ Module.register("Medication-Input", {
 				this.sendNotification("ADD_MEDICATIONS", medicines);
 				this.sendSocketNotification("SAVE_PATIENT_MEDICATION", medicines);
 
+				// Show confirmation message
+				const confirmationMessage = document.createElement("p");
+				confirmationMessage.innerText = `Medication inserted successfully for ${brandSelect.options[brandSelect.selectedIndex].text}!`;
+				confirmationMessage.className = "confirmation-message";
+				confirmationMessage.style.fontSize = "32px"; // Make the confirmation message bigger
+				wrapper.appendChild(confirmationMessage);
+		  
+				// Set a timeout to remove the confirmation message after 5 seconds
+				setTimeout(() => {
+				  confirmationMessage.remove();
+				}, 5000);
 				const medicationData = {
 					medication_id: brandId,
 					box: selectedBox,

@@ -102,12 +102,24 @@ Module.register("Medication-Scheduler", {
     const scheduleButton = document.createElement("button");
     scheduleButton.innerText = "Schedule Medication";
     scheduleButton.className = "medication-button";
-    scheduleButton.addEventListener("click", () => {
+    scheduleButton.addEventListener("click", async () => {
       const medicationIdValue = medicationDropdown.value.trim(); // Get the selected medication's ID
       const selectedDays = Array.from(daysSelect.selectedOptions).map((option) => option.value);
       const selectedTimes = Array.from(timesSelect.selectedOptions).map((option) => option.value);
 
       this.sendSocketNotification("SCHEDULE_MEDICATION", { medication_id: medicationIdValue, days: selectedDays, times: selectedTimes });
+
+      // Show confirmation message
+      const confirmationMessage = document.createElement("p");
+      confirmationMessage.innerText = `Schedule created successfully for ${medicationDropdown.options[medicationDropdown.selectedIndex].text}!`;
+      confirmationMessage.className = "confirmation-message";
+      confirmationMessage.style.fontSize = "32px"; // Make the confirmation message bigger
+      wrapper.appendChild(confirmationMessage);
+
+      // Set a timeout to remove the confirmation message after 5 seconds
+      setTimeout(() => {
+        confirmationMessage.remove();
+      }, 5000);
 
       // Prepare medication data objects for each day-time combination
       const medicationData = [];
@@ -128,6 +140,8 @@ Module.register("Medication-Scheduler", {
         medications: medicationData
       });
       this.log(medicationData);
+
+
     });
     wrapper.appendChild(scheduleButton);
 
@@ -146,6 +160,7 @@ Module.register("Medication-Scheduler", {
     return wrapper;
   },
 
+
   updateMedicationOptions: function (medications) {
     const medicationDropdown = document.querySelector(".medication-select");
 
@@ -154,41 +169,42 @@ Module.register("Medication-Scheduler", {
 
     // Check if medications is an array or a single medication object
     if (Array.isArray(medications)) {
-      // Iterate over each medication in the array
-      medications.forEach(medication => {
+        // Iterate over each medication in the array
+        medications.forEach(medication => {
+            const option = document.createElement("option");
+            option.value = medication.medication_id;
+
+            // Truncate long medication names if they exceed a certain length
+            const maxNameLength = 25; // Define the maximum length for medication names
+            const displayName = medication.brand_name ?
+                (medication.brand_name.length > maxNameLength ?
+                    `${medication.brand_name.substring(0, maxNameLength)}...` :
+                    medication.brand_name) :
+                'Unknown'; // Provide a default value if brand_name is undefined
+
+            option.text = displayName;
+            medicationDropdown.appendChild(option);
+        });
+    } else if (medications && typeof medications === 'object') {
+        // Handle single medication object
         const option = document.createElement("option");
-        option.value = medication.medication_id;
+        option.value = medications.medication_id;
 
         // Truncate long medication names if they exceed a certain length
         const maxNameLength = 25; // Define the maximum length for medication names
-        const displayName = medication.brand_name ?
-          (medication.brand_name.length > maxNameLength ?
-            `${medication.brand_name.substring(0, maxNameLength)}...` :
-            medication.brand_name) :
-          'Unknown'; // Provide a default value if brand_name is undefined
+        const displayName = medications.brand_name ?
+            (medications.brand_name.length > maxNameLength ?
+                `${medications.brand_name.substring(0, maxNameLength)}...` :
+                medications.brand_name) :
+            'Unknown'; // Provide a default value if brand_name is undefined
 
         option.text = displayName;
         medicationDropdown.appendChild(option);
-      });
-    } else if (medications && typeof medications === 'object') {
-      // Handle single medication object
-      const option = document.createElement("option");
-      option.value = medications.medication_id;
-
-      // Truncate long medication names if they exceed a certain length
-      const maxNameLength = 25; // Define the maximum length for medication names
-      const displayName = medications.brand_name ?
-        (medications.brand_name.length > maxNameLength ?
-          `${medications.brand_name.substring(0, maxNameLength)}...` :
-          medications.brand_name) :
-        'Unknown'; // Provide a default value if brand_name is undefined
-
-      option.text = displayName;
-      medicationDropdown.appendChild(option);
     } else {
-      console.error("Invalid payload format:", medications);
+        console.error("Invalid payload format:", medications);
     }
-  },
+},
+
 
 
 
