@@ -89,7 +89,7 @@ Module.register("Medication-Alarm", {
 
     // Dim other modules if the alarm is active
     if (this.alarmActive) {
-      this.sendNotification("MODULE_TOGGLE", { hide: ["clock", "weather", "MMM-TouchButton","ViewNotifications"], show: [], toggle: [] })
+      this.sendNotification("MODULE_TOGGLE", { hide: ["clock", "weather", "MMM-TouchButton", "ViewNotifications"], show: [], toggle: [] })
       // MM.getModules().enumerate((module) => {
       //   // Exclude the medication alarm module itself
       //   if (module.name !== "Medication-Alarm") {
@@ -159,7 +159,21 @@ Module.register("Medication-Alarm", {
         const startTime = new Date().getTime();
         this.sendNotification("START_MEDICATION_VERIFICATION", { medication_id: medicationId, startTime: startTime, alarmTime: this.alarmTime });
       }
+
+      // Show confirmation message
+      const confirmationMessage = document.createElement("div");
+      confirmationMessage.className = "medication-confirmation";
+      confirmationMessage.innerHTML = "Verification complete for medication ID";
+
+      // Append the confirmation message to the wrapper
+      this.notificationsWrapper.appendChild(confirmationMessage);
+
+      // Set a timeout to remove the confirmation message after 5 seconds
+      setTimeout(() => {
+        confirmationMessage.remove();
+      }, 5000);
     }
   }
+
 
 });

@@ -91,9 +91,9 @@ let config = {
 				timeout: 50
 			}
 		},
-		{
-			module: "gpio",
-		},
+		// {
+		// 	module: "gpio",
+		// },
 		{
 			module: "MMM-ModuleToggle",
 			config: {
