@@ -26,9 +26,6 @@ Module.register("Medication-Scheduler", {
     }
   },
 
-
-
-
   socketNotificationReceived: function (notification, payload) {
     if (notification === "MEDICATION_DATA_FOUND") {
       this.medicationData = payload;
@@ -60,10 +57,9 @@ Module.register("Medication-Scheduler", {
     // Select medication dropdown list
     const medicationDropdown = document.createElement("select");
     medicationDropdown.className = "medication-select";
-    medicationDropdown.addEventListener("change", () => {
-      this.updateMedicationOptions(this.payload);
-      // Set the value of the medication ID input field to the selected medication's ID
-      medicationIdInput.value = medicationDropdown.value;
+    medicationDropdown.addEventListener("click", () => {
+      // Fetch medication options when the dropdown is clicked to ensure the latest data
+      this.sendSocketNotification("GET_MEDICATIONS");
     });
     wrapper.appendChild(medicationDropdown);
 
@@ -102,7 +98,7 @@ Module.register("Medication-Scheduler", {
     const scheduleButton = document.createElement("button");
     scheduleButton.innerText = "Schedule Medication";
     scheduleButton.className = "medication-button";
-    scheduleButton.addEventListener("click", async () => {
+    scheduleButton.addEventListener("click", () => {
       const medicationIdValue = medicationDropdown.value.trim(); // Get the selected medication's ID
       const selectedDays = Array.from(daysSelect.selectedOptions).map((option) => option.value);
       const selectedTimes = Array.from(timesSelect.selectedOptions).map((option) => option.value);
@@ -140,8 +136,6 @@ Module.register("Medication-Scheduler", {
         medications: medicationData
       });
       this.log(medicationData);
-
-
     });
     wrapper.appendChild(scheduleButton);
 
@@ -160,53 +154,42 @@ Module.register("Medication-Scheduler", {
     return wrapper;
   },
 
-
   updateMedicationOptions: function (medications) {
     const medicationDropdown = document.querySelector(".medication-select");
-
-    // Clear existing options before populating the dropdown
-    medicationDropdown.innerHTML = "";
-
+  
     // Check if medications is an array or a single medication object
     if (Array.isArray(medications)) {
-        // Iterate over each medication in the array
-        medications.forEach(medication => {
-            const option = document.createElement("option");
-            option.value = medication.medication_id;
-
-            // Truncate long medication names if they exceed a certain length
-            const maxNameLength = 25; // Define the maximum length for medication names
-            const displayName = medication.brand_name ?
-                (medication.brand_name.length > maxNameLength ?
-                    `${medication.brand_name.substring(0, maxNameLength)}...` :
-                    medication.brand_name) :
-                'Unknown'; // Provide a default value if brand_name is undefined
-
-            option.text = displayName;
-            medicationDropdown.appendChild(option);
-        });
-    } else if (medications && typeof medications === 'object') {
-        // Handle single medication object
+      // Clear existing options before populating the dropdown
+      medicationDropdown.innerHTML = "";
+  
+      // Iterate over each medication in the array
+      medications.forEach(medication => {
         const option = document.createElement("option");
-        option.value = medications.medication_id;
-
-        // Truncate long medication names if they exceed a certain length
-        const maxNameLength = 25; // Define the maximum length for medication names
-        const displayName = medications.brand_name ?
-            (medications.brand_name.length > maxNameLength ?
-                `${medications.brand_name.substring(0, maxNameLength)}...` :
-                medications.brand_name) :
-            'Unknown'; // Provide a default value if brand_name is undefined
-
-        option.text = displayName;
+        option.value = medication.medication_id;
+        option.text = medication.brand_name ? medication.brand_name : 'Unknown'; // Provide a default value if brand_name is undefined
         medicationDropdown.appendChild(option);
+      });
+    } else if (medications && typeof medications === 'object') {
+      // Handle single medication object
+      const option = document.createElement("option");
+      option.value = medications.medication_id;
+      option.text = medications.brand_name ? medications.brand_name : 'Unknown'; // Provide a default value if brand_name is undefined
+      medicationDropdown.appendChild(option);
     } else {
-        console.error("Invalid payload format:", medications);
+      console.error("Invalid payload format:", medications);
     }
-},
-
-
-
+  
+    // Add an event listener to fetch medication options when the dropdown is clicked
+    medicationDropdown.addEventListener("click", () => {
+      // Fetch medication options when the dropdown is clicked to ensure the latest data
+      this.sendSocketNotification("GET_MEDICATIONS");
+    });
+  
+    // Trigger a click event to ensure the dropdown fully expands when clicked
+    medicationDropdown.click();
+  },
+  
+  
 
   // Helper function to convert day name to number (0 for Sunday, 1 for Monday, etc.)
   convertDayToNumber: function (dayName) {
