@@ -163,7 +163,7 @@ Module.register("Medication-Alarm", {
       // Show confirmation message
       const confirmationMessage = document.createElement("div");
       confirmationMessage.className = "medication-confirmation";
-      confirmationMessage.innerHTML = "Verification complete for medication ID";
+      confirmationMessage.innerHTML = "Verification Processed";
 
       // Append the confirmation message to the wrapper
       this.notificationsWrapper.appendChild(confirmationMessage);
