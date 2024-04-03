@@ -84,14 +84,15 @@ Module.register("Medication-Scheduler", {
     timesSelect.size = 7;
     // Create options for all hours and minutes
     for (let hours = 0; hours <= 23; hours++) {
-      for (let minutes = 0; minutes < 60; minutes += 15) {
-        const formattedTime = `${(hours < 10 ? '0' : '') + hours}:${(minutes === 0 ? '00' : minutes)}`;
+      for (let minutes = 0; minutes < 60; minutes += 5) {
+        const formattedTime = `${(hours < 10 ? '0' : '') + hours}:${(minutes < 10 ? '0' : '') + minutes}`;
         const option = document.createElement("option");
         option.value = formattedTime;
         option.text = formattedTime;
         timesSelect.appendChild(option);
       }
     }
+
     wrapper.appendChild(timesSelect);
 
     // Schedule button
