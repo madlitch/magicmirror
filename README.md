@@ -1,56 +1,85 @@
-![MagicMirror²: The open source modular smart mirror platform. ](.github/header.png)
+# Smart Medicine Cabinet Capstone Project
 
-<p style="text-align: center">
-  <a href="https://choosealicense.com/licenses/mit">
-		<img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License">
-	</a>
-	<img src="https://img.shields.io/github/actions/workflow/status/michmich/magicmirror/automated-tests.yaml" alt="GitHub Actions">
-	<img src="https://img.shields.io/github/checks-status/michmich/magicmirror/master" alt="Build Status">
-	<a href="https://codecov.io/gh/MichMich/MagicMirror">
-		<img src="https://codecov.io/gh/MichMich/MagicMirror/branch/master/graph/badge.svg?token=LEG1KitZR6" alt="CodeCov Status"/>
-	</a>
-	<a href="https://github.com/MichMich/MagicMirror">
-		<img src="https://img.shields.io/github/stars/michmich/magicmirror?style=social">
-	</a>
-</p>
+<img src="documentation/media/portrait_clear.png" alt="alt_text" height="800">
 
-**MagicMirror²** is an open source modular smart mirror platform. With a growing list of installable modules, the **MagicMirror²** allows you to convert your hallway or bathroom mirror into your personal assistant. **MagicMirror²** is built by the creator of [the original MagicMirror](https://michaelteeuw.nl/tagged/magicmirror) with the incredible help of a [growing community of contributors](https://github.com/MichMich/MagicMirror/graphs/contributors).
+## Overview
 
-MagicMirror² focuses on a modular plugin system and uses [Electron](https://www.electronjs.org/) as an application wrapper. So no more web server or browser installs necessary!
+The Smart Medicine Cabinet project is a system designed to automate medication management.
+Developed by students of the Faculty of Engineering and Applied Science, this system integrates hardware and software
+components to provide reminders, dispense medications, and enable remote monitoring for seniors with chronic conditions.
+The project leverages a Raspberry Pi as its central computing unit, equipped with a touchscreen display for interaction,
+mechanically controlled pill dispensers for accurate medication delivery, and sensors including a camera and IR touch
+interface for operational control and intake verification. The software architecture utilizes the MagicMirror Framework
+to create a modular, customizable interface, supplemented by cloud services for data synchronization and caregiver
+access. This proof-of-concept aims to simplify medication management, enhancing adherence and independence for users
+while offering caregivers a reliable monitoring solution.
 
-## Documentation
+## Features
 
-For the full documentation including **[installation instructions](https://docs.magicmirror.builders/getting-started/installation.html)**, please visit our dedicated documentation website: [https://docs.magicmirror.builders](https://docs.magicmirror.builders).
+- **Medication Storage and Cataloging**: Secure and organized storage of medications with easy cataloging and
+  accessibility.
+- **Automated Medication Reminders**: Visual and auditory notifications to remind patients of medication times,
+  enhancing adherence.
+- **Medication Intake Verification**: Utilizes computer vision to confirm patient medication intake, ensuring doses are
+  not missed.
+- **Online Caregiver Monitoring**: Allows caregivers to monitor patient medication schedules, intake, and adherence
+  remotely via a secure portal.
+- **Interactive User Interface**: Built with the MagicMirror Framework for a customizable, modular, and user-friendly
+  experience.
 
-## Links
+## Components
 
-- Website: [https://magicmirror.builders](https://magicmirror.builders)
-- Documentation: [https://docs.magicmirror.builders](https://docs.magicmirror.builders)
-- Forum: [https://forum.magicmirror.builders](https://forum.magicmirror.builders)
-  - Technical discussions: https://forum.magicmirror.builders/category/11/core-system
-- Discord: [https://discord.gg/J5BAtvx](https://discord.gg/J5BAtvx)
-- Blog: [https://michaelteeuw.nl/tagged/magicmirror](https://michaelteeuw.nl/tagged/magicmirror)
-- Donations: [https://magicmirror.builders/#donate](https://magicmirror.builders/#donate)
+### Hardware
 
-## Contributing Guidelines
+- Raspberry Pi: Central computing unit running MagicMirror software.
+- Touchscreen Display: Interactive interface for medication management.
+- Pill Dispensers: Mechanically controlled dispensers for accurate medication delivery.
+- Additional Sensors: Including a camera and IR touch interface for operational control and intake verification.
 
-Contributions of all kinds are welcome, not only in the form of code but also with regards to
+### Software
 
-- bug reports
-- documentation
-- translations
+- **Cabinet Layer Architecture**: Comprising presentation, business, and data layers for a structured and efficient
+  system organization.
+- **Cloud Services**: For data synchronization and remote caregiver monitoring, ensuring data integrity and
+  accessibility.
+- **Computer Vision**: Python scripts utilizing the MediaPipe library for real-time medication intake verification.
 
-For the full contribution guidelines, check out: [https://docs.magicmirror.builders/about/contributing.html](https://docs.magicmirror.builders/about/contributing.html)
+## Installation
 
-## Enjoying MagicMirror? Consider a donation!
+To set up the Smart Medicine Cabinet system, clone this repository to your Raspberry Pi and follow the setup
+instructions detailed in the [user manual](/documentation/user_manual.pdf).
 
-MagicMirror² is opensource and free. That doesn't mean we don't need any money.
+The Caretaker Portal repository can be found [here](https://github.com/himapaul10/caretakerportal).
 
-Please consider a donation to help us cover the ongoing costs like webservers and email services.
-If we receive enough donations we might even be able to free up some working hours and spend some extra time improving the MagicMirror² core.
+## Usage
 
-To donate, please follow [this](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=G5D8E9MR5DTD2&source=url) link.
+Refer to the [user manual](/documentation/user_manual.pdf) for detailed instructions on how to use the Smart Medicine
+Cabinet, including medication input, scheduling, and system interaction.
 
-<p style="text-align: center">
-	<a href="https://forum.magicmirror.builders/topic/728/magicmirror-is-voted-number-1-in-the-magpi-top-50"><img src="https://magicmirror.builders/img/magpi-best-watermark-custom.png" width="150" alt="MagPi Top 50"></a>
-</p>
+## Assembly
+
+All parts designed for this project can be found in the [parts folder](/parts/). 
+
+Every part was 3D printed in place without supports,
+except for the [Dispenser Container](/parts/dispenser%20assembly/dispenser/Container.stl) and
+the [Dispenser Lid](/parts/dispenser%20assembly/dispenser/Lid.stl) (printed on its side for proper hinge functionality),
+using [Duramic 3D Black PLA+ Filament](https://www.amazon.ca/dp/B07TWDF866?th=1).
+
+Mounting holes are designed to fit these [M3 3x5mm knurled insert nuts](https://www.amazon.ca/dp/B07LBGQ2PV?psc=1) and
+all screws are M3 flathead machine screws.
+
+## Contributors
+
+- Massimo Albanese
+- Lyba Mughees
+- Hima Paul
+- Abida Choudhury
+
+Special thanks to our faculty advisor, Dr. Ramiro Liscano, and Capstone Coordinator, Dr. Q. Mahmoud, for their
+invaluable guidance and support.
+
+## Acknowledgments
+
+Gratitude to all stakeholders, including healthcare professionals and engineering experts, who contributed insights and
+feedback during the development process.
+
