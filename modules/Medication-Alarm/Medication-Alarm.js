@@ -22,7 +22,7 @@ Module.register("Medication-Alarm", {
 
   start: function () {
     console.log("Medication-Alarm module started...");
-    this.notificationSound = new Audio("modules/Medication-Alarm/time_to_take_your_pill.mp3");
+    this.notificationSound = new Audio("modules/Medication-Alarm/alarm.mp3");
     this.alarmActive = false;
     this.notificationsWrapper = document.createElement("div");
     this.notificationsWrapper.className = "medication-notifications";
@@ -89,16 +89,17 @@ Module.register("Medication-Alarm", {
 
     // Dim other modules if the alarm is active
     if (this.alarmActive) {
-      MM.getModules().enumerate((module) => {
-        // Exclude the medication alarm module itself
-        if (module.name !== "Medication-Alarm") {
-          module.hide(1000);
-        }
-      });
+      this.sendNotification("MODULE_TOGGLE", { hide: ["clock", "weather", "MMM-TouchButton", "ViewNotifications"], show: [], toggle: [] })
+      // MM.getModules().enumerate((module) => {
+      //   // Exclude the medication alarm module itself
+      //   if (module.name !== "Medication-Alarm") {
+      //     module.hide(1000);
+      //   }
+      // });
 
       const stopButton = document.createElement("button");
       stopButton.className = "medication-alarm button";
-      stopButton.innerHTML = "Stop I Am Taking My Pill!!";
+      stopButton.innerHTML = "Ready to take my pills";
       stopButton.addEventListener("click", () => {
         while (this.notificationsWrapper.firstChild) {
           this.notificationsWrapper.removeChild(this.notificationsWrapper.firstChild);
@@ -107,10 +108,7 @@ Module.register("Medication-Alarm", {
         this.stopAlarm();
         this.sendNotification("ALARM_STOPPED");
 
-        // Show all modules when the alarm is stopped
-        MM.getModules().enumerate((module) => {
-          module.show(1000);
-        });
+        this.sendNotification("MODULE_TOGGLE", { hide: [], show: ["clock", "weather", "MMM-TouchButton-Lock"], toggle: [] })
       });
 
       wrapper.appendChild(stopButton);
@@ -161,7 +159,21 @@ Module.register("Medication-Alarm", {
         const startTime = new Date().getTime();
         this.sendNotification("START_MEDICATION_VERIFICATION", { medication_id: medicationId, startTime: startTime, alarmTime: this.alarmTime });
       }
+
+      // Show confirmation message
+      const confirmationMessage = document.createElement("div");
+      confirmationMessage.className = "medication-confirmation";
+      confirmationMessage.innerHTML = "Verification Processed";
+
+      // Append the confirmation message to the wrapper
+      this.notificationsWrapper.appendChild(confirmationMessage);
+
+      // Set a timeout to remove the confirmation message after 5 seconds
+      setTimeout(() => {
+        confirmationMessage.remove();
+      }, 5000);
     }
   }
+
 
 });

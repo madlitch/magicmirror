@@ -10,7 +10,7 @@
 Module.register("Medication-Scheduler", {
   defaults: {
     passcode: "1234", // Set your default passcode here
-    locked: false
+    locked: true
   },
 
   start: function () {
@@ -20,13 +20,10 @@ Module.register("Medication-Scheduler", {
   },
 
   notificationReceived: function (notification, payload) {
-    // if (notification === "UNLOCK_MEDICATION_SCHEDULER") {
-    //     this.config.locked = false;
-    //     this.updateDom();
-    // } else if (notification === "LOCK_MEDICATION_SCHEDULER") {
-    //     this.config.locked = true;
-    //     this.updateDom();
-    // }
+    if (notification === "MEDICATION_ADDED") {
+      console.log("Payload received:", payload);
+      this.updateMedicationOptions(payload);
+    }
   },
 
   socketNotificationReceived: function (notification, payload) {
@@ -48,12 +45,8 @@ Module.register("Medication-Scheduler", {
   },
 
   getDom: function () {
-
     const wrapper = document.createElement("div");
     wrapper.className = "medication-scheduler";
-
-
-
 
     // Select medication ID input field
     const medicationIdInput = document.createElement("input");
@@ -64,10 +57,9 @@ Module.register("Medication-Scheduler", {
     // Select medication dropdown list
     const medicationDropdown = document.createElement("select");
     medicationDropdown.className = "medication-select";
-    medicationDropdown.addEventListener("change", () => {
-      this.updateMedicationOptions();
-      // Set the value of the medication ID input field to the selected medication's ID
-      medicationIdInput.value = medicationDropdown.value;
+    medicationDropdown.addEventListener("click", () => {
+      // Fetch medication options when the dropdown is clicked to ensure the latest data
+      this.sendSocketNotification("GET_MEDICATIONS");
     });
     wrapper.appendChild(medicationDropdown);
 
@@ -92,16 +84,14 @@ Module.register("Medication-Scheduler", {
     timesSelect.size = 7;
     // Create options for all hours and minutes
     for (let hours = 0; hours <= 23; hours++) {
-      for (let minutes = 0; minutes < 60; minutes += 15) {
-        const formattedTime = `${(hours < 10 ? '0' : '') + hours}:${(minutes === 0 ? '00' : minutes)}`;
+      for (let minutes = 0; minutes < 60; minutes += 5) {
+        const formattedTime = `${(hours < 10 ? '0' : '') + hours}:${(minutes < 10 ? '0' : '') + minutes}`;
         const option = document.createElement("option");
         option.value = formattedTime;
         option.text = formattedTime;
         timesSelect.appendChild(option);
       }
     }
-    wrapper.appendChild(timesSelect);
-
 
     wrapper.appendChild(timesSelect);
 
@@ -114,9 +104,21 @@ Module.register("Medication-Scheduler", {
       const selectedDays = Array.from(daysSelect.selectedOptions).map((option) => option.value);
       const selectedTimes = Array.from(timesSelect.selectedOptions).map((option) => option.value);
 
-
       this.sendSocketNotification("SCHEDULE_MEDICATION", { medication_id: medicationIdValue, days: selectedDays, times: selectedTimes });
-      //Prepare medication data objects for each day-time combination
+
+      // Show confirmation message
+      const confirmationMessage = document.createElement("p");
+      confirmationMessage.innerText = `Schedule created successfully for ${medicationDropdown.options[medicationDropdown.selectedIndex].text}!`;
+      confirmationMessage.className = "confirmation-message";
+      confirmationMessage.style.fontSize = "32px"; // Make the confirmation message bigger
+      wrapper.appendChild(confirmationMessage);
+
+      // Set a timeout to remove the confirmation message after 5 seconds
+      setTimeout(() => {
+        confirmationMessage.remove();
+      }, 5000);
+
+      // Prepare medication data objects for each day-time combination
       const medicationData = [];
       selectedDays.forEach(day => {
         selectedTimes.forEach(time => {
@@ -135,10 +137,7 @@ Module.register("Medication-Scheduler", {
         medications: medicationData
       });
       this.log(medicationData);
-
-
     });
-
     wrapper.appendChild(scheduleButton);
 
     // Delete schedule button
@@ -153,25 +152,45 @@ Module.register("Medication-Scheduler", {
     });
     wrapper.appendChild(deleteButton);
 
-
-
     return wrapper;
-
   },
 
   updateMedicationOptions: function (medications) {
     const medicationDropdown = document.querySelector(".medication-select");
-    // // Clear existing options
-    // medicationDropdown.innerHTML = '';
-    // // Add new options
-    medications.forEach(medication => {
+  
+    // Check if medications is an array or a single medication object
+    if (Array.isArray(medications)) {
+      // Clear existing options before populating the dropdown
+      medicationDropdown.innerHTML = "";
+  
+      // Iterate over each medication in the array
+      medications.forEach(medication => {
+        const option = document.createElement("option");
+        option.value = medication.medication_id;
+        option.text = medication.brand_name ? medication.brand_name : 'Unknown'; // Provide a default value if brand_name is undefined
+        medicationDropdown.appendChild(option);
+      });
+    } else if (medications && typeof medications === 'object') {
+      // Handle single medication object
       const option = document.createElement("option");
-      option.value = medication.medication_id;
-      option.text = `${medication.brand_name} (${medication.generic_name})`;
+      option.value = medications.medication_id;
+      option.text = medications.brand_name ? medications.brand_name : 'Unknown'; // Provide a default value if brand_name is undefined
       medicationDropdown.appendChild(option);
+    } else {
+      console.error("Invalid payload format:", medications);
+    }
+  
+    // Add an event listener to fetch medication options when the dropdown is clicked
+    medicationDropdown.addEventListener("click", () => {
+      // Fetch medication options when the dropdown is clicked to ensure the latest data
+      this.sendSocketNotification("GET_MEDICATIONS");
     });
+  
+    // Trigger a click event to ensure the dropdown fully expands when clicked
+    medicationDropdown.click();
   },
-
+  
+  
 
   // Helper function to convert day name to number (0 for Sunday, 1 for Monday, etc.)
   convertDayToNumber: function (dayName) {

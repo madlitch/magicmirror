@@ -1,5 +1,8 @@
 import cv2
 import mediapipe as mp
+from picamera2 import Picamera2, Preview
+import numpy as np
+import libcamera
 import sys
 import time
 
@@ -7,11 +10,27 @@ import time
 drawingModule = mp.solutions.drawing_utils
 handsModule = mp.solutions.hands
 
-# Initialize VideoCapture with the default camera 
-cap = cv2.VideoCapture(0)
+# DIM=(2592, 1944)
+# DIM=(640, 480)
+SENSOR_DIM = (1164, 874)
+# Desired output resolution
+OUTPUT_DIM = (1164, 874)
+
+# K=np.array([[342.9837584457945, 0.0, 314.25919634522825], [0.0, 342.44023085140554, 243.15271698598514], [0.0, 0.0, 1.0]])
+# D=np.array([[-0.10714087202017064], [0.06859468860588519], [-0.08742521945007528], [0.04206839025686303]])
+
+# Initialize Picamera2
+picam2 = Picamera2()
+preview_config = picam2.create_preview_configuration(main={"size": SENSOR_DIM})
+# preview_config = picam2.create_preview_configuration(main={"size": (640, 480)})
+preview_config["transform"] = libcamera.Transform(hflip=1, vflip=1)
+picam2.configure(preview_config)
+picam2.start()
+
+# map1, map2 = cv2.fisheye.initUndistortRectifyMap(K, D, np.eye(3), K, DIM, cv2.CV_16SC2)
 
 # Add confidence values and extra settings to MediaPipe hand tracking
-with handsModule.Hands(static_image_mode=False, min_detection_confidence=0.7, min_tracking_confidence=0.7, max_num_hands=2) as hands:
+with handsModule.Hands(static_image_mode=False, min_detection_confidence=0.5, min_tracking_confidence=0.5, max_num_hands=2) as hands:
 
     timeout = 60  # Set the timeout to 60 seconds
     max_retries = 3  # Maximum number of retries
@@ -24,18 +43,18 @@ with handsModule.Hands(static_image_mode=False, min_detection_confidence=0.7, mi
 
         while True:
             # Capture frame from the camera
-            ret, frame = cap.read()
+            frame = picam2.capture_array()
 
-            if not ret:
-                print("Failed to capture frame from camera")
-                break
-            
+            # if not frame:
+            #     print("Failed to capture frame from camera")
+            #     break
+
             # Convert the color space from BGR to RGB
             frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            
+
             # Process the frame with MediaPipe Hands
             results = hands.process(frame_rgb)
-            
+
             # Check if hands are detected
             if results.multi_hand_landmarks is not None:
                 for handLandmarks in results.multi_hand_landmarks:
@@ -76,5 +95,5 @@ with handsModule.Hands(static_image_mode=False, min_detection_confidence=0.7, mi
         sys.exit()  # Exit the program
 
 # Release resources
-cap.release()
+picam2.stop()
 cv2.destroyAllWindows()
