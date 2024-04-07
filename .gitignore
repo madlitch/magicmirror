@@ -84,3 +84,4 @@ Temporary Items
 *.bak
 /modules/MMM-TouchButton/node_modules/
 /modules/gpio/node_modules/
+/modules/Medication-Management/medications.db
