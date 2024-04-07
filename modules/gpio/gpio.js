@@ -22,9 +22,14 @@ Module.register("gpio", {
 			this.sendSocketNotification(this.name + "PIN_TOGGLE", payload);
 		} else if (notification === "GPIO_PIN_WRITE") {
 			this.sendSocketNotification(this.name + "PIN_WRITE", payload);
-		}
-		else if (notification === "GPIO_PIN_CYCLE") {
+		} else if (notification === "GPIO_PIN_CYCLE") {
 			this.sendSocketNotification(this.name + "PIN_CYCLE", payload);
+		} else if (notification === "MEDICATION_ALARM") {
+			this.sendSocketNotification(this.name + "START_CYCLE", payload);
+		} else if (notification === "ALARM_STOPPED") {
+			this.sendSocketNotification(this.name + "STOP_CYCLE", payload);
+		} else if (notification === "VERIFICATION_COMPLETE") {
+			this.sendSocketNotification(this.name + "PIN_WRITE", { pin: 8, state: false });
 		}
 	},
 

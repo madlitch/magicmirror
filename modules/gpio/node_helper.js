@@ -50,7 +50,7 @@ function sleep(ms) {
 
 module.exports = NodeHelper.create({
 
-	start: function () {
+	start: function() {
 		pins.push(new GPIOPin(1, 16)); //GPIO 23
 		pins.push(new GPIOPin(2, 11)); //GPIO 17
 		pins.push(new GPIOPin(3, 13)); //GPIO 27
@@ -61,9 +61,29 @@ module.exports = NodeHelper.create({
 		pins.push(new GPIOPin(8, 37)); //GP
 	},
 
+	alarm: false,
+
+	async cyclePin(payload) {
+		while (this.alarm) {
+			await new Promise((resolve, reject) => {
+				pins[7].write(true, async () => {
+					await sleep(1000);
+					pins[7].write(false, async () => {
+						await sleep(1000);
+						resolve();
+					});
+				});
+			});
+		}
+		pins[7].write(true, async (pl) => {
+			this.sendSocketNotification(this.name + "ALARM_SUCCESS");
+		});
+	},
+
 	socketNotificationReceived: function(notification, payload) {
 
 		if (notification === this.name + "PIN_WRITE") {
+			console.log(payload);
 			pins[payload.pin - 1].write(payload.state, (pl) => {
 				this.sendSocketNotification(this.name + "WRITE_SUCCESS", pl);
 			});
@@ -73,12 +93,18 @@ module.exports = NodeHelper.create({
 			});
 		} else if (notification === this.name + "PIN_CYCLE") {
 			pins[payload.pin - 1].write(true, (pl) => {
-				sleep(200).then(() => {
-					pins[payload.pin -1].write(false, (pl) => {
+				sleep(250).then(() => {
+					pins[payload.pin - 1].write(false, (pl) => {
 						this.sendSocketNotification(this.name + "CYCLE_SUCCESS", pl);
 					});
 				});
 			});
+		} else if (notification === this.name + "START_CYCLE") {
+			// Start the loop
+			this.alarm = true;
+			this.cyclePin(payload);
+		} else if (notification === this.name + "STOP_CYCLE") {
+			this.alarm = false;
 		}
 
 		if (notification === this.name + "LOG") {
