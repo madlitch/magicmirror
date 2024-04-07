@@ -97,7 +97,8 @@ let config = {
 		{
 			module: "MMM-ModuleToggle",
 			config: {
-				hide: ["Medication-Input", "MMM-TouchButton", "MMM-ViewNotifications", "Medication-Scheduler"],
+				// hide: ["Medication-Input", "MMM-TouchButton", "MMM-ViewNotifications", "Medication-Scheduler"],
+				hide: ["Medication-Input", "MMM-TouchButton", "Medication-Scheduler"],
 				speed: 0
 			}
 		},
@@ -127,7 +128,8 @@ let config = {
 						icon: "fluent:person-lock-24-filled",
 						notification: "MODULE_TOGGLE",
 						// payload: { hide: ["Medication-Input", "MMM-TouchButton", "MMM-ViewNotifications",  "MMM-TouchButton-Lock"], show: ["MMM-TouchButton-Unlock"], toggle:[] }
-						payload: { hide: [], show: [], toggle:["Medication-Input", "MMM-ViewNotifications"] }
+						payload: { hide: [], show: [], toggle:["Medication-Input"] }
+						// payload: { hide: [], show: [], toggle:["Medication-Input", "MMM-ViewNotifications"] }
 					},
 				]
 			}
