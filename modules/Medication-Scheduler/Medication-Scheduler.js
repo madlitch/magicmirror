@@ -19,12 +19,15 @@ Module.register("Medication-Scheduler", {
     this.sendSocketNotification("GET_MEDICATIONS");
   },
 
-  notificationReceived: function (notification, payload) {
+  notificationReceived: function(notification, payload) {
     if (notification === "MEDICATION_ADDED") {
       console.log("Payload received:", payload);
       this.updateMedicationOptions(payload);
     }
   },
+
+
+
 
   socketNotificationReceived: function (notification, payload) {
     if (notification === "MEDICATION_DATA_FOUND") {
@@ -57,9 +60,10 @@ Module.register("Medication-Scheduler", {
     // Select medication dropdown list
     const medicationDropdown = document.createElement("select");
     medicationDropdown.className = "medication-select";
-    medicationDropdown.addEventListener("click", () => {
-      // Fetch medication options when the dropdown is clicked to ensure the latest data
-      this.sendSocketNotification("GET_MEDICATIONS");
+    medicationDropdown.addEventListener("change", () => {
+      this.updateMedicationOptions(this.payload);
+      // Set the value of the medication ID input field to the selected medication's ID
+      medicationIdInput.value = medicationDropdown.value;
     });
     wrapper.appendChild(medicationDropdown);
 
@@ -92,7 +96,6 @@ Module.register("Medication-Scheduler", {
         timesSelect.appendChild(option);
       }
     }
-
     wrapper.appendChild(timesSelect);
 
     // Schedule button
@@ -105,18 +108,6 @@ Module.register("Medication-Scheduler", {
       const selectedTimes = Array.from(timesSelect.selectedOptions).map((option) => option.value);
 
       this.sendSocketNotification("SCHEDULE_MEDICATION", { medication_id: medicationIdValue, days: selectedDays, times: selectedTimes });
-
-      // Show confirmation message
-      const confirmationMessage = document.createElement("p");
-      confirmationMessage.innerText = `Schedule created successfully for ${medicationDropdown.options[medicationDropdown.selectedIndex].text}!`;
-      confirmationMessage.className = "confirmation-message";
-      confirmationMessage.style.fontSize = "32px"; // Make the confirmation message bigger
-      wrapper.appendChild(confirmationMessage);
-
-      // Set a timeout to remove the confirmation message after 5 seconds
-      setTimeout(() => {
-        confirmationMessage.remove();
-      }, 5000);
 
       // Prepare medication data objects for each day-time combination
       const medicationData = [];
@@ -157,12 +148,9 @@ Module.register("Medication-Scheduler", {
 
   updateMedicationOptions: function (medications) {
     const medicationDropdown = document.querySelector(".medication-select");
-  
+
     // Check if medications is an array or a single medication object
     if (Array.isArray(medications)) {
-      // Clear existing options before populating the dropdown
-      medicationDropdown.innerHTML = "";
-  
       // Iterate over each medication in the array
       medications.forEach(medication => {
         const option = document.createElement("option");
@@ -179,18 +167,9 @@ Module.register("Medication-Scheduler", {
     } else {
       console.error("Invalid payload format:", medications);
     }
-  
-    // Add an event listener to fetch medication options when the dropdown is clicked
-    medicationDropdown.addEventListener("click", () => {
-      // Fetch medication options when the dropdown is clicked to ensure the latest data
-      this.sendSocketNotification("GET_MEDICATIONS");
-    });
-  
-    // Trigger a click event to ensure the dropdown fully expands when clicked
-    medicationDropdown.click();
   },
-  
-  
+
+
 
   // Helper function to convert day name to number (0 for Sunday, 1 for Monday, etc.)
   convertDayToNumber: function (dayName) {

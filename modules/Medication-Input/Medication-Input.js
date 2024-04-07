@@ -50,18 +50,10 @@ Module.register("Medication-Input", {
 		searchResults.forEach((medication) => {
 			const option = document.createElement("option");
 			option.value = medication.id;
-
-			// Truncate long medication names if they exceed a certain length
-			const maxNameLength = 25; // Define the maximum length for medication names
-			const displayName = medication.generic_name.length > maxNameLength ?
-				`${medication.generic_name.substring(0, maxNameLength)}...` :
-				medication.generic_name;
-
-			option.textContent = `${displayName} (${medication.brand_name})`;
+			option.textContent = `${medication.generic_name} (${medication.brand_name})`;
 			brandSelect.appendChild(option);
 		});
 	},
-
 
 	getStyles: function () {
 		return ["Medication-Input.css"];
@@ -79,17 +71,6 @@ Module.register("Medication-Input", {
 			passcodeInput.id = "passcode-value";
 			passcodeInput.className = "medication-select2";
 			wrapper.appendChild(passcodeInput);
-
-			// Toggle password visibility icon
-			const toggleVisibilityIcon = document.createElement("i");
-			toggleVisibilityIcon.className = "fas fa-eye-slash toggle-password";
-			toggleVisibilityIcon.addEventListener("click", () => {
-				const passcodeInput = document.getElementById("passcode-value");
-				passcodeInput.type = passcodeInput.type === "password" ? "text" : "password";
-				toggleVisibilityIcon.classList.toggle("fa-eye-slash");
-				toggleVisibilityIcon.classList.toggle("fa-eye");
-			});
-			wrapper.appendChild(toggleVisibilityIcon);
 
 			// Display unlock button
 			const unlockButton = document.createElement("button");
@@ -174,17 +155,6 @@ Module.register("Medication-Input", {
 				this.sendNotification("ADD_MEDICATIONS", medicines);
 				this.sendSocketNotification("SAVE_PATIENT_MEDICATION", medicines);
 
-				// Show confirmation message
-				const confirmationMessage = document.createElement("p");
-				confirmationMessage.innerText = `Medication inserted successfully for ${brandSelect.options[brandSelect.selectedIndex].text}!`;
-				confirmationMessage.className = "confirmation-message";
-				confirmationMessage.style.fontSize = "32px"; // Make the confirmation message bigger
-				wrapper.appendChild(confirmationMessage);
-		  
-				// Set a timeout to remove the confirmation message after 5 seconds
-				setTimeout(() => {
-				  confirmationMessage.remove();
-				}, 5000);
 				const medicationData = {
 					medication_id: brandId,
 					box: selectedBox,
@@ -195,6 +165,11 @@ Module.register("Medication-Input", {
 					patient_id: "b6673aee-c9d8-11ee-8491-029e9cf81533",
 					cabinet_id: "b45569c2-c9d9-11ee-8491-029e9cf81533",
 					medications: [medicationData]
+				});
+
+				this.sendNotification("MEDICATION_ADDED", { // Send notification with updated medication data
+					medication_id: brandId,
+					brand_name: brandSelect.options[brandSelect.selectedIndex].textContent.split("(")[1].replace(")", "").trim()
 				});
 			});
 

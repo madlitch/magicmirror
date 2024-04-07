@@ -32,7 +32,7 @@ module.exports = NodeHelper.create({
 
     else if (notification === "LOG") {
       console.log(payload);
-  }
+    }
   },
 
   convertDayToNumber: function (dayName) {
@@ -53,7 +53,7 @@ module.exports = NodeHelper.create({
     // Mock the database connection here
     return mockDatabase; // Assuming mockDatabase is defined globally
   },
-  
+
 
   scheduleMedication: function ({ medication_id, days, times }) {
     // Connect to SQLite database
@@ -61,13 +61,13 @@ module.exports = NodeHelper.create({
 
     // Create medication_schedule table if not exists
     db.run(`CREATE TABLE IF NOT EXISTS medication_schedule (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      medication_id TEXT,
-      brand_name TEXT,
-      generic_name TEXT,
-      day TEXT,
-      time TEXT
-    )`);
+                                                             id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                                             medication_id TEXT,
+                                                             brand_name TEXT,
+                                                             generic_name TEXT,
+                                                             day TEXT,
+                                                             time TEXT
+            )`);
 
     // Retrieve brand name and generic name from medications table based on the entered medication ID
     db.get(
@@ -80,7 +80,7 @@ module.exports = NodeHelper.create({
           if (row) {
             const { brand_name, generic_name } = row;
 
-            
+
 
             // Check if the schedule already exists
             const existingScheduleQuery =
@@ -136,7 +136,7 @@ module.exports = NodeHelper.create({
       }
     );
 
-   
+
   },
 
   searchMedication: function () {
@@ -156,6 +156,6 @@ module.exports = NodeHelper.create({
       }
     );
 
-   
+
   }
 });
