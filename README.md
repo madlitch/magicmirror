@@ -73,7 +73,6 @@ all screws are M3 flathead machine screws.
 - Massimo Albanese
 - Lyba Mughees
 - Hima Paul
-- Abida Choudhury
 
 Special thanks to our faculty advisor, Dr. Ramiro Liscano, and Capstone Coordinator, Dr. Q. Mahmoud, for their
 invaluable guidance and support.
